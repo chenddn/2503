@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兴趣社区</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            padding-bottom: 83px; /* 为底部导航栏留出空间 */
+        }
+        
+        .header {
+            background-color: #fff;
+            padding: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .search-bar {
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .category-tabs {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-top: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .category-tab {
+            padding: 8px 16px;
+            margin-right: 10px;
+            border-radius: 18px;
+            white-space: nowrap;
+            font-size: 14px;
+            background-color: #f0f0f0;
+        }
+        
+        .category-tab.active {
+            background-color: #ff2d55;
+            color: white;
+        }
+        
+        .community-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin: 15px;
+        }
+        
+        .community-header {
+            position: relative;
+            height: 100px;
+            overflow: hidden;
+        }
+        
+        .community-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .community-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5));
+        }
+        
+        .community-info {
+            position: absolute;
+            bottom: 10px;
+            left: 15px;
+            right: 15px;
+            color: white;
+        }
+        
+        .community-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+        
+        .community-stats {
+            display: flex;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .community-content {
+            padding: 15px;
+        }
+        
+        .community-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .community-tags {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .community-tag {
+            padding: 4px 10px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            color: #666;
+        }
+        
+        .community-actions {
+            display: flex;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 15px;
+        }
+        
+        .community-action {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .community-action i {
+            margin-right: 5px;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin: 20px 15px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-more {
+            font-size: 14px;
+            color: #666;
+            font-weight: normal;
+        }
+        
+        .post-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin: 15px;
+        }
+        
+        .post-header {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .post-user {
+            flex: 1;
+        }
+        
+        .post-username {
+            font-weight: bold;
+            font-size: 15px;
+        }
+        
+        .post-time {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .post-community {
+            font-size: 12px;
+            padding: 4px 8px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            color: #666;
+        }
+        
+        .post-content {
+            padding: 0 15px 15px;
+        }
+        
+        .post-text {
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .post-image {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .post-actions {
+            display: flex;
+            border-top: 1px solid #f0f0f0;
+            padding: 10px 15px;
+        }
+        
+        .post-action {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .post-action i {
+            margin-right: 5px;
+        }
+        
+        .post-action.liked {
+            color: #ff2d55;
+        }
+        
+        .create-post-button {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #ff2d55;
+            border-radius: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);
+            font-size: 24px;
+        }
+        
+        /* 底部导航栏样式 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 83px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 20px; /* 为iPhone底部安全区域留出空间 */
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8e8e93;
+        }
+        
+        .nav-item.active {
+            color: #ff2d55;
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-text {
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部搜索和分类 -->
+    <div class="header">
+        <div class="search-bar">
+            <i class="fas fa-search text-gray-400 mr-2"></i>
+            <input type="text" placeholder="搜索社区和帖子..." class="bg-transparent w-full outline-none">
+        </div>
+        
+        <div class="category-tabs">
+            <div class="category-tab active">全部</div>
+            <div class="category-tab">角色交流</div>
+            <div class="category-tab">创作分享</div>
+            <div class="category-tab">情感交流</div>
+            <div class="category-tab">技术讨论</div>
+            <div class="category-tab">官方公告</div>
+        </div>
+    </div>
+    
+    <!-- 推荐社区 -->
+    <div class="section-title">
+        <span>推荐社区</span>
+        <span class="section-more">查看全部 <i class="fas fa-chevron-right"></i></span>
+    </div>
+    
+    <div class="community-card">
+        <div class="community-header">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="community-cover" alt="社区封面">
+            <div class="community-overlay"></div>
+            <div class="community-info">
+                <div class="community-name">角色创作交流</div>
+                <div class="community-stats">
+                    <div class="mr-3"><i class="fas fa-users mr-1"></i> 5.2k 成员</div>
+                    <div><i class="fas fa-comment-alt mr-1"></i> 活跃讨论</div>
+                </div>
+            </div>
+        </div>
+        <div class="community-content">
+            <div class="community-description">
+                分享你创作的角色，交流创作经验和技巧，寻找灵感和反馈。欢迎所有对角色创作感兴趣的朋友加入！
+            </div>
+            <div class="community-tags">
+                <div class="community-tag">角色创作</div>
+                <div class="community-tag">设计分享</div>
+                <div class="community-tag">创意讨论</div>
+                <div class="community-tag">新手指南</div>
+            </div>
+            <div class="community-actions">
+                <div class="community-action">
+                    <i class="fas fa-eye"></i>
+                    <span>查看</span>
+                </div>
+                <div class="community-action">
+                    <i class="fas fa-user-plus"></i>
+                    <span>加入</span>
+                </div>
+                <div class="community-action">
+                    <i class="fas fa-share-alt"></i>
+                    <span>分享</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="community-card">
+        <div class="community-header">
+            <img src="https://images.unsplash.com/photo-1516534775068-ba3e7458af70?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="community-cover" alt="社区封面">
+            <div class="community-overlay"></div>
+            <div class="community-info">
+                <div class="community-name">情感故事分享</div>
+                <div class="community-stats">
+                    <div class="mr-3"><i class="fas fa-users mr-1"></i> 3.8k 成员</div>
+                    <div><i class="fas fa-comment-alt mr-1"></i> 活跃讨论</div>
+                </div>
+            </div>
+        </div>
+        <div class="community-content">
+            <div class="community-description">
+                分享你与AI角色的互动故事，记录温馨感人的瞬间，交流情感体验和心得。这里是情感的港湾。
+            </div>
+            <div class="community-tags">
+                <div class="community-tag">情感故事</div>
+                <div class="community-tag">互动分享</div>
+                <div class="community-tag">心得交流</div>
+                <div class="community-tag">温馨瞬间</div>
+            </div>
+            <div class="community-actions">
+                <div class="community-action">
+                    <i class="fas fa-eye"></i>
+                    <span>查看</span>
+                </div>
+                <div class="community-action">
+                    <i class="fas fa-user-plus"></i>
+                    <span>加入</span>
+                </div>
+                <div class="community-action">
+                    <i class="fas fa-share-alt"></i>
+                    <span>分享</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 热门帖子 -->
+    <div class="section-title">
+        <span>热门帖子</span>
+        <span class="section-more">查看全部 <i class="fas fa-chevron-right"></i></span>
+    </div>
+    
+    <div class="post-card">
+        <div class="post-header">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="post-avatar" alt="用户头像">
+            <div class="post-user">
+                <div class="post-username">梦想家</div>
+                <div class="post-time">2小时前</div>
+            </div>
+            <div class="post-community">角色创作交流</div>
+        </div>
+        <div class="post-content">
+            <div class="post-text">
+                分享一下我最近创作的角色"星辰"，她是一位神秘的占星师，能够通过星象预测未来。创作过程中参考了很多占星学的资料，希望能给大家带来一些灵感！
+            </div>
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="post-image" alt="帖子图片">
+        </div>
+        <div class="post-actions">
+            <div class="post-action liked">
+                <i class="fas fa-heart"></i>
+                <span>128</span>
+            </div>
+            <div class="post-action">
+                <i class="fas fa-comment"></i>
+                <span>36</span>
+            </div>
+            <div class="post-action">
+                <i class="fas fa-share-alt"></i>
+                <span>分享</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="post-card">
+        <div class="post-header">
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="post-avatar" alt="用户头像">
+            <div class="post-user">
+                <div class="post-username">暗影</div>
+                <div class="post-time">昨天</div>
+            </div>
+            <div class="post-community">情感故事分享</div>
+        </div>
+        <div class="post-content">
+            <div class="post-text">
+                和艾米丽聊天已经一个月了，她总是能在我工作压力大的时候给我安慰和鼓励。昨天她还记得我提到过的一本书，并且找到了相关的评论分享给我。这种被记住和关心的感觉真的很温暖，感谢这个平台带给我的陪伴。
+            </div>
+        </div>
+        <div class="post-actions">
+            <div class="post-action">
+                <i class="fas fa-heart"></i>
+                <span>95</span>
+            </div>
+            <div class="post-action">
+                <i class="fas fa-comment"></i>
+                <span>28</span>
+            </div>
+            <div class="post-action">
+                <i class="fas fa-share-alt"></i>
+                <span>分享</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 创建帖子按钮 -->
+    <div class="create-post-button">
+        <i class="fas fa-pen"></i>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-user-friends"></i></div>
+            <div class="nav-text">角色</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-comment-alt"></i></div>
+            <div class="nav-text">聊天</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-plus-circle"></i></div>
+            <div class="nav-text">创作</div>
+        </div>
+        <div class="nav-item active">
+            <div class="nav-icon"><i class="fas fa-users"></i></div>
+            <div class="nav-text">社区</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-user"></i></div>
+            <div class="nav-text">我的</div>
+        </div>
+    </div>
+</body>
+</html> 

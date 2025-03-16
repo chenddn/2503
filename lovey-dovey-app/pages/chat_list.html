@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天列表</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            padding-bottom: 83px; /* 为底部导航栏留出空间 */
+        }
+        
+        .header {
+            background-color: #fff;
+            padding: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .search-bar {
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-item {
+            display: flex;
+            padding: 15px;
+            background-color: white;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+        }
+        
+        .chat-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+        
+        .chat-content {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .chat-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+        
+        .chat-message {
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+        }
+        
+        .chat-time {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .chat-unread {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 20px;
+            height: 20px;
+            background-color: #ff2d55;
+            border-radius: 10px;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .chat-pinned {
+            position: absolute;
+            top: 40px;
+            right: 15px;
+            color: #ff2d55;
+            font-size: 14px;
+        }
+        
+        .affection-level {
+            display: flex;
+            align-items: center;
+        }
+        
+        .affection-heart {
+            color: #ff2d55;
+            margin-right: 4px;
+        }
+        
+        .affection-progress {
+            width: 50px;
+            height: 4px;
+            background-color: #f0f0f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-right: 4px;
+        }
+        
+        .affection-bar {
+            height: 100%;
+            background-color: #ff2d55;
+        }
+        
+        .model-badge {
+            background-color: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            font-size: 16px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        /* 底部导航栏样式 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 83px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 20px; /* 为iPhone底部安全区域留出空间 */
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8e8e93;
+        }
+        
+        .nav-item.active {
+            color: #ff2d55;
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-text {
+            font-size: 10px;
+        }
+        
+        .new-chat-button {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #ff2d55;
+            border-radius: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部搜索 -->
+    <div class="header">
+        <div class="search-bar">
+            <i class="fas fa-search text-gray-400 mr-2"></i>
+            <input type="text" placeholder="搜索聊天..." class="bg-transparent w-full outline-none">
+        </div>
+    </div>
+    
+    <!-- 置顶会话 -->
+    <div class="section-title">置顶会话</div>
+    
+    <div class="chat-item">
+        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="chat-avatar" alt="角色头像">
+        <div class="chat-content">
+            <div class="chat-name">
+                艾米丽
+                <span class="chat-badge model-badge">GPT-4</span>
+            </div>
+            <div class="chat-message">我今天尝试了一个新的蛋糕配方，你要不要也试试看？我觉得你会喜欢的！</div>
+            <div class="affection-level">
+                <div class="affection-heart"><i class="fas fa-heart"></i></div>
+                <div class="affection-progress">
+                    <div class="affection-bar" style="width: 80%;"></div>
+                </div>
+                <div class="chat-time">Lv.4</div>
+            </div>
+        </div>
+        <div class="chat-unread">3</div>
+        <div class="chat-pinned"><i class="fas fa-thumbtack"></i></div>
+    </div>
+    
+    <div class="chat-item">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="chat-avatar" alt="角色头像">
+        <div class="chat-content">
+            <div class="chat-name">
+                杰克
+                <span class="chat-badge model-badge">Claude</span>
+            </div>
+            <div class="chat-message">嘿，我刚从一次冒险中回来，有很多有趣的故事要告诉你！</div>
+            <div class="affection-level">
+                <div class="affection-heart"><i class="fas fa-heart"></i></div>
+                <div class="affection-progress">
+                    <div class="affection-bar" style="width: 65%;"></div>
+                </div>
+                <div class="chat-time">Lv.3</div>
+            </div>
+        </div>
+        <div class="chat-pinned"><i class="fas fa-thumbtack"></i></div>
+    </div>
+    
+    <!-- 最近会话 -->
+    <div class="section-title">最近会话</div>
+    
+    <div class="chat-item">
+        <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="chat-avatar" alt="角色头像">
+        <div class="chat-content">
+            <div class="chat-name">
+                莉莉
+                <span class="chat-badge model-badge">GPT-4</span>
+            </div>
+            <div class="chat-message">我画了一幅新画，想听听你的意见！你觉得用什么颜色会更好？</div>
+            <div class="affection-level">
+                <div class="affection-heart"><i class="fas fa-heart"></i></div>
+                <div class="affection-progress">
+                    <div class="affection-bar" style="width: 45%;"></div>
+                </div>
+                <div class="chat-time">Lv.2</div>
+            </div>
+        </div>
+        <div class="chat-unread">1</div>
+    </div>
+    
+    <div class="chat-item">
+        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="chat-avatar" alt="角色头像">
+        <div class="chat-content">
+            <div class="chat-name">
+                亚历克斯
+                <span class="chat-badge model-badge">Claude</span>
+            </div>
+            <div class="chat-message">关于那个AI项目，我有一些新的想法，我们可以讨论一下实现方案。</div>
+            <div class="affection-level">
+                <div class="affection-heart"><i class="fas fa-heart"></i></div>
+                <div class="affection-progress">
+                    <div class="affection-bar" style="width: 30%;"></div>
+                </div>
+                <div class="chat-time">Lv.2</div>
+            </div>
+        </div>
+        <div class="chat-time" style="position: absolute; top: 15px; right: 15px;">昨天</div>
+    </div>
+    
+    <div class="chat-item">
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="chat-avatar" alt="角色头像">
+        <div class="chat-content">
+            <div class="chat-name">
+                星辰
+                <span class="chat-badge" style="background-color: #f0e6ff; color: #7b5dd6;">用户创作</span>
+            </div>
+            <div class="chat-message">我看到了你的星象，最近会有好运降临，尤其是在事业方面。</div>
+            <div class="affection-level">
+                <div class="affection-heart"><i class="fas fa-heart"></i></div>
+                <div class="affection-progress">
+                    <div class="affection-bar" style="width: 20%;"></div>
+                </div>
+                <div class="chat-time">Lv.1</div>
+            </div>
+        </div>
+        <div class="chat-time" style="position: absolute; top: 15px; right: 15px;">周一</div>
+    </div>
+    
+    <div class="chat-item">
+        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="chat-avatar" alt="角色头像">
+        <div class="chat-content">
+            <div class="chat-name">
+                夜行者
+                <span class="chat-badge" style="background-color: #f0e6ff; color: #7b5dd6;">用户创作</span>
+            </div>
+            <div class="chat-message">城市今晚很安静，我在屋顶上巡逻时想到了你。你最近还好吗？</div>
+            <div class="affection-level">
+                <div class="affection-heart"><i class="fas fa-heart"></i></div>
+                <div class="affection-progress">
+                    <div class="affection-bar" style="width: 15%;"></div>
+                </div>
+                <div class="chat-time">Lv.1</div>
+            </div>
+        </div>
+        <div class="chat-time" style="position: absolute; top: 15px; right: 15px;">上周</div>
+    </div>
+    
+    <!-- 新建聊天按钮 -->
+    <div class="new-chat-button">
+        <i class="fas fa-plus"></i>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-user-friends"></i></div>
+            <div class="nav-text">角色</div>
+        </div>
+        <div class="nav-item active">
+            <div class="nav-icon"><i class="fas fa-comment-alt"></i></div>
+            <div class="nav-text">聊天</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-plus-circle"></i></div>
+            <div class="nav-text">创作</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-users"></i></div>
+            <div class="nav-text">社区</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-user"></i></div>
+            <div class="nav-text">我的</div>
+        </div>
+    </div>
+</body>
+</html> 

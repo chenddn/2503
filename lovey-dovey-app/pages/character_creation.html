@@ -1,0 +1,3393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>人设卡创作</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            padding-bottom: 83px; /* 为底部导航栏留出空间 */
+            line-height: 1.4;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .ios-status-bar {
+            height: 44px;
+            background-color: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .status-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-time {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .status-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-icon {
+            margin-left: 6px;
+        }
+        
+        .header {
+            background-color: #fff;
+            padding: 12px 16px;
+            position: sticky;
+            top: 44px;
+            z-index: 40;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header-title {
+            font-weight: 600;
+            font-size: 17px;
+            color: #000;
+        }
+        
+        .tab-bar {
+            display: flex;
+            background-color: #fff;
+            padding: 8px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            margin-right: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .tab.active {
+            background-color: #ff2d55;
+            color: white;
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            margin: 12px 16px;
+        }
+        
+        .section-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-size: 14px;
+            color: white;
+            background: linear-gradient(135deg, #ff5b8d, #ff2d55);
+        }
+        
+        .section-content {
+            padding: 16px;
+        }
+        
+        .character-circle {
+            width: 160px;
+            height: 160px;
+            border-radius: 80px;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 24px auto;
+            color: white;
+            font-weight: 600;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(255, 45, 85, 0.2);
+            background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80');
+            background-size: cover;
+            background-position: center;
+            border: 3px solid white;
+        }
+        
+        .personality-tag {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid rgba(0,0,0,0.08);
+            background-color: #f5f7fa;
+            transition: all 0.2s ease;
+        }
+        
+        .personality-tag.active {
+            background: linear-gradient(135deg, #ff5b8d, #ff2d55);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 2px 6px rgba(255, 45, 85, 0.2);
+        }
+        
+        /* 磁性标签选择器样式 */
+        .magnetic-tags-container {
+            position: relative;
+            width: 100%;
+            min-height: 60px;
+            margin-bottom: 10px;
+        }
+        
+        .magnetic-tags-field {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 5px;
+            min-height: 60px;
+            border-radius: 12px;
+            background-color: #f5f7fa;
+            border: 1px dashed rgba(0,0,0,0.1);
+        }
+        
+        .magnetic-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            background-color: white;
+            color: #333;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            cursor: move;
+            user-select: none;
+            position: relative;
+            z-index: 1;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .magnetic-tag.active {
+            background: linear-gradient(135deg, #ff5b8d, #ff2d55);
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 45, 85, 0.2);
+        }
+        
+        .magnetic-tag.dragging {
+            z-index: 10;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transform: scale(1.1);
+        }
+        
+        .tag-text {
+            margin-right: 6px;
+        }
+        
+        .tag-remove {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .magnetic-tag.active .tag-remove {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+        
+        .tag-remove:hover {
+            background-color: rgba(255, 45, 85, 0.8);
+            color: white;
+        }
+        
+        .magnetic-tag.add-tag {
+            background-color: #f0f0f0;
+            border: 1px dashed #ccc;
+            box-shadow: none;
+            cursor: pointer;
+        }
+        
+        .magnetic-tag.add-tag:hover {
+            background-color: #e5e5ea;
+        }
+        
+        .tag-suggestions {
+            margin-top: 10px;
+        }
+        
+        .tag-suggestion-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #8e8e93;
+            margin-bottom: 8px;
+        }
+        
+        .tag-suggestions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .tag-suggestion {
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            background-color: #f0f0f0;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .tag-suggestion:hover {
+            background-color: #e5e5ea;
+            transform: translateY(-2px);
+        }
+        
+        .tag-suggestion.used {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        /* 标签拖动时的占位符 */
+        .tag-placeholder {
+            display: inline-block;
+            width: 80px;
+            height: 36px;
+            border-radius: 20px;
+            border: 2px dashed rgba(255, 45, 85, 0.3);
+            background-color: rgba(255, 45, 85, 0.05);
+        }
+        
+        /* 标签添加/删除动画 */
+        @keyframes tag-add {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes tag-remove {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.5); opacity: 0; }
+        }
+        
+        .tag-adding {
+            animation: tag-add 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        .tag-removing {
+            animation: tag-remove 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        .slider-container {
+            margin: 16px 0;
+        }
+        
+        .slider-track {
+            width: 100%;
+            height: 4px;
+            background-color: rgba(0,0,0,0.08);
+            border-radius: 2px;
+            position: relative;
+            margin: 10px 0;
+        }
+        
+        .slider-fill {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(to right, #ff5b8d, #ff2d55);
+            border-radius: 2px;
+        }
+        
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #8e8e93;
+            margin-top: 6px;
+        }
+        
+        .card {
+            background-color: #f5f7fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: #000;
+        }
+        
+        .card-subtitle {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #3a3a3c;
+        }
+        
+        .card-text {
+            font-size: 14px;
+            color: #636366;
+            line-height: 1.4;
+        }
+        
+        .world-option {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid rgba(0,0,0,0.08);
+            background-color: #f5f7fa;
+            transition: all 0.2s ease;
+        }
+        
+        .world-option.active {
+            background: linear-gradient(135deg, #ff5b8d, #ff2d55);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 2px 6px rgba(255, 45, 85, 0.2);
+        }
+        
+        .feature-card {
+            background-color: #f5f7fa;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-card.highlight {
+            background-color: rgba(255, 45, 85, 0.08);
+        }
+        
+        .theme-card {
+            background-color: #fff9e6;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .import-export-button {
+            padding: 10px 16px;
+            border-radius: 12px;
+            background-color: #f5f7fa;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .import-export-button:hover {
+            background-color: #e5e5ea;
+        }
+        
+        .import-export-button i {
+            margin-right: 8px;
+        }
+        
+        .preset-card {
+            background-color: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 15px;
+            transition: all 0.2s ease;
+        }
+        
+        .preset-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .preset-header {
+            padding: 12px;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .preset-image {
+            width: 64px;
+            height: 64px;
+            border-radius: 32px;
+            margin: 0 auto;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .preset-footer {
+            padding: 10px 12px;
+            background-color: #f5f7fa;
+            font-size: 12px;
+            color: #8e8e93;
+            text-align: center;
+        }
+        
+        /* 亲密度进度系统样式 */
+        .intimacy-system {
+            background-color: #fff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .intimacy-level-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .intimacy-level {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .intimacy-level:hover {
+            transform: translateY(-5px);
+        }
+        
+        .intimacy-level:active {
+            transform: translateY(0) scale(0.95);
+        }
+        
+        .intimacy-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f5f7fa, #e5e5ea);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #8e8e93;
+            font-size: 16px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .intimacy-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+        
+        .intimacy-level:hover .intimacy-icon::after {
+            opacity: 0.5;
+            transform: scale(1);
+        }
+        
+        .intimacy-level.active .intimacy-icon {
+            background: linear-gradient(135deg, #ff9a9e, #ff2d55);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(255, 45, 85, 0.3);
+        }
+        
+        .intimacy-level.locked .intimacy-icon {
+            background: linear-gradient(135deg, #f5f7fa, #e5e5ea);
+            color: #c7c7cc;
+        }
+        
+        .intimacy-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: #8e8e93;
+            transition: all 0.3s ease;
+        }
+        
+        .intimacy-level.active .intimacy-name {
+            color: #ff2d55;
+            font-weight: 600;
+        }
+        
+        .intimacy-progress-line {
+            flex: 1;
+            height: 3px;
+            background-color: #e5e5ea;
+            position: relative;
+            z-index: 1;
+            margin: 0 -5px;
+            overflow: hidden;
+        }
+        
+        .intimacy-progress-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(to right, #ff9a9e, #ff2d55);
+            transition: width 0.5s ease;
+        }
+        
+        .intimacy-level.active ~ .intimacy-progress-line::after {
+            width: 0;
+        }
+        
+        .intimacy-level:nth-child(1).active ~ .intimacy-progress-line:nth-child(2)::after {
+            width: 100%;
+        }
+        
+        .intimacy-level:nth-child(3).active ~ .intimacy-progress-line:nth-child(4)::after {
+            width: 100%;
+        }
+        
+        .intimacy-level:nth-child(5).active ~ .intimacy-progress-line:nth-child(6)::after {
+            width: 100%;
+        }
+        
+        .intimacy-level:nth-child(7).active ~ .intimacy-progress-line:nth-child(8)::after {
+            width: 100%;
+        }
+        
+        .intimacy-details {
+            background-color: #f5f7fa;
+            border-radius: 12px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .intimacy-details:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .intimacy-current {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .intimacy-label {
+            color: #8e8e93;
+        }
+        
+        .intimacy-value {
+            font-weight: 600;
+            color: #ff2d55;
+        }
+        
+        .intimacy-progress-bar {
+            height: 6px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .intimacy-progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #ff9a9e, #ff2d55);
+            border-radius: 3px;
+            transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        
+        .intimacy-progress-handle {
+            width: 16px;
+            height: 16px;
+            background-color: #ff2d55;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translate(50%, -50%);
+            box-shadow: 0 2px 6px rgba(255, 45, 85, 0.3);
+            z-index: 2;
+            cursor: grab;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .intimacy-progress-handle:hover {
+            transform: translate(50%, -50%) scale(1.2);
+            box-shadow: 0 4px 10px rgba(255, 45, 85, 0.4);
+        }
+        
+        .intimacy-progress-handle:active {
+            cursor: grabbing;
+            transform: translate(50%, -50%) scale(1.1);
+        }
+        
+        .intimacy-progress-bar:hover .intimacy-progress-fill {
+            background: linear-gradient(to right, #ff9a9e, #ff5b8d);
+        }
+        
+        .intimacy-benefits {
+            margin-top: 10px;
+        }
+        
+        .intimacy-benefit-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #3a3a3c;
+        }
+        
+        .intimacy-benefit-item {
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .intimacy-benefit-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .intimacy-benefit-item.locked {
+            color: #8e8e93;
+        }
+        
+        /* 添加粒子效果 */
+        .particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: rgba(255, 45, 85, 0.6);
+            pointer-events: none;
+        }
+        
+        /* 添加闪光效果 */
+        .intimacy-level.active .intimacy-icon::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            opacity: 0;
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+        }
+        
+        /* 底部导航栏样式 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 83px;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 20px; /* 为iPhone底部安全区域留出空间 */
+            z-index: 50;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8e8e93;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: #ff2d55;
+        }
+        
+        .nav-icon {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-text {
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        /* 交互式角色属性编辑器样式 */
+        .character-trait-editor {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .editor-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .editor-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .editor-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .editor-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .editor-action-btn {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .editor-action-btn.outline {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: #666;
+        }
+        
+        .editor-action-btn.outline:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .editor-action-btn.primary {
+            background-color: #ff2d55;
+            color: white;
+            border: none;
+        }
+        
+        .editor-action-btn.primary:hover {
+            background-color: #ff1a43;
+        }
+        
+        .editor-action-btn i {
+            margin-right: 6px;
+        }
+        
+        .editor-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        
+        .editor-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .character-name-input {
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .character-name-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .character-name-field {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .character-name-field:focus {
+            border-color: #ff2d55;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 45, 85, 0.2);
+        }
+        
+        .trait-sliders {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .trait-slider {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .trait-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .trait-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .trait-slider-container {
+            position: relative;
+            height: 12px;
+            background-color: #f0f0f0;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: grab;
+        }
+        
+        .trait-slider-container:active {
+            cursor: grabbing;
+        }
+        
+        .trait-slider-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 50%;
+            background: linear-gradient(to right, #ff2d55, #ff9eaa);
+            border-radius: 6px;
+            transition: width 0.2s ease;
+        }
+        
+        .trait-slider-thumb {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 2px solid #ff2d55;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+        
+        .trait-values {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .add-trait-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 16px;
+            border: 1px dashed #ddd;
+            border-radius: 8px;
+            background-color: transparent;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .add-trait-btn:hover {
+            background-color: #f9f9f9;
+            border-color: #ccc;
+        }
+        
+        .editor-preview {
+            position: sticky;
+            top: 20px;
+        }
+        
+        .preview-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .preview-header {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .preview-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .preview-content {
+            padding: 16px;
+        }
+        
+        .preview-section {
+            margin-bottom: 16px;
+        }
+        
+        .preview-section-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .preview-traits {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .preview-trait {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .preview-trait-left {
+            color: #666;
+        }
+        
+        .preview-trait-right {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .preview-trait-bar {
+            width: 80px;
+            height: 4px;
+            background-color: #f0f0f0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .preview-trait-progress {
+            height: 100%;
+            background-color: #ff2d55;
+            transition: width 0.3s ease;
+        }
+        
+        .preview-description {
+            padding-top: 16px;
+            margin-top: 16px;
+            border-top: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .preview-action {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 16px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: transparent;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .preview-action:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .trait-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .trait-dialog.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .trait-dialog-content {
+            width: 90%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .trait-dialog.active .trait-dialog-content {
+            transform: scale(1);
+        }
+        
+        .trait-dialog-header {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .trait-dialog-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .trait-dialog-body {
+            padding: 16px;
+        }
+        
+        .trait-dialog-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .trait-dialog-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .trait-dialog-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .trait-dialog-input {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .trait-dialog-input:focus {
+            border-color: #ff2d55;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 45, 85, 0.2);
+        }
+        
+        .trait-dialog-footer {
+            padding: 16px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .trait-dialog-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .trait-dialog-btn.cancel {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: #666;
+        }
+        
+        .trait-dialog-btn.cancel:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .trait-dialog-btn.confirm {
+            background-color: #ff2d55;
+            color: white;
+            border: none;
+        }
+        
+        .trait-dialog-btn.confirm:hover {
+            background-color: #ff1a43;
+        }
+        
+        /* 角色外观定制样式 */
+        .appearance-editor {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .appearance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .appearance-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .appearance-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .appearance-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        
+        .avatar-uploader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .avatar-preview {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background-color: #f5f5f5;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 3px solid white;
+        }
+        
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .avatar-placeholder i {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .avatar-upload-btn {
+            padding: 8px 16px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .avatar-upload-btn:hover {
+            background-color: #eee;
+        }
+        
+        .avatar-upload-btn i {
+            margin-right: 6px;
+        }
+        
+        .avatar-upload-input {
+            display: none;
+        }
+        
+        .appearance-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .appearance-section {
+            margin-bottom: 16px;
+        }
+        
+        .appearance-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .feature-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .feature-option {
+            padding: 8px 16px;
+            background-color: #f5f5f5;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .feature-option:hover {
+            background-color: #eee;
+            transform: translateY(-2px);
+        }
+        
+        .feature-option.active {
+            background-color: #ff2d55;
+            color: white;
+        }
+        
+        .color-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.active {
+            border-color: #ff2d55;
+            transform: scale(1.1);
+        }
+        
+        .style-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .style-option {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .style-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .style-option.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 3px solid #ff2d55;
+            border-radius: 8px;
+        }
+        
+        .style-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .style-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 6px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .appearance-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .appearance-action-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .appearance-action-btn i {
+            margin-right: 6px;
+        }
+        
+        .appearance-action-btn.outline {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: #666;
+        }
+        
+        .appearance-action-btn.outline:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .appearance-action-btn.primary {
+            background-color: #ff2d55;
+            color: white;
+            border: none;
+        }
+        
+        .appearance-action-btn.primary:hover {
+            background-color: #ff1a43;
+        }
+        
+        .ai-generate-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 16px;
+            background: linear-gradient(135deg, #a18cd1, #6b5dd3);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .ai-generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(107, 93, 211, 0.3);
+        }
+        
+        .ai-generate-btn i {
+            margin-right: 8px;
+        }
+        
+        /* 移动设备适配样式 */
+        @media screen and (max-width: 428px) {
+            /* iPhone 15 Pro 宽度为393px */
+            body {
+                padding-bottom: 100px;
+            }
+            
+            .section {
+                margin: 10px 12px;
+                border-radius: 12px;
+            }
+            
+            .section-header {
+                padding: 12px;
+            }
+            
+            .section-content {
+                padding: 12px;
+            }
+            
+            .character-circle {
+                width: 120px;
+                height: 120px;
+                border-radius: 60px;
+                margin-bottom: 16px;
+            }
+            
+            /* 角色属性编辑器移动适配 */
+            .character-trait-editor {
+                padding: 12px;
+            }
+            
+            .editor-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .editor-preview {
+                position: relative;
+                top: 0;
+                margin-top: 20px;
+            }
+            
+            /* 外观定制移动适配 */
+            .appearance-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .avatar-uploader {
+                margin-bottom: 16px;
+            }
+            
+            .avatar-preview {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .style-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            /* 标签页适配 */
+            .tab-bar {
+                padding: 6px 12px;
+            }
+            
+            .tab {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            
+            /* 磁性标签适配 */
+            .magnetic-tag {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+            
+            /* 亲密度系统适配 */
+            .intimacy-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            
+            .intimacy-name {
+                font-size: 11px;
+            }
+            
+            /* 预设卡片适配 */
+            .preset-card {
+                margin-bottom: 10px;
+            }
+            
+            .preset-header {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .preset-image {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .preset-footer {
+                padding: 8px;
+                font-size: 11px;
+            }
+            
+            /* 底部导航栏适配 */
+            .bottom-nav {
+                height: 70px;
+                padding-bottom: 15px;
+            }
+            
+            .nav-icon {
+                font-size: 20px;
+            }
+            
+            .nav-text {
+                font-size: 10px;
+            }
+            
+            /* 对话框适配 */
+            .trait-dialog-content {
+                width: 95%;
+                max-width: 350px;
+            }
+            
+            .trait-dialog-header,
+            .trait-dialog-body,
+            .trait-dialog-footer {
+                padding: 12px;
+            }
+            
+            /* 特征选项适配 */
+            .feature-option {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            
+            .color-option {
+                width: 25px;
+                height: 25px;
+            }
+            
+            /* 按钮适配 */
+            .appearance-action-btn,
+            .editor-action-btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            
+            .ai-generate-btn {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .add-trait-btn {
+                padding: 10px;
+                font-size: 13px;
+            }
+        }
+        
+        /* iPhone 15 Pro Max 适配 */
+        @media screen and (min-width: 429px) and (max-width: 480px) {
+            body {
+                padding-bottom: 90px;
+            }
+            
+            .section {
+                margin: 12px 14px;
+            }
+            
+            .editor-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .appearance-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
+        /* 横屏适配 */
+        @media screen and (min-width: 667px) and (max-height: 428px) {
+            body {
+                padding-bottom: 70px;
+            }
+            
+            .character-circle {
+                width: 100px;
+                height: 100px;
+                margin-bottom: 12px;
+            }
+            
+            .section {
+                margin: 8px 10px;
+            }
+            
+            .editor-grid,
+            .appearance-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .bottom-nav {
+                height: 60px;
+                padding-bottom: 10px;
+            }
+        }
+        
+        /* 时间线背景故事编辑器样式 */
+        .timeline-story-editor {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .timeline-editor-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .add-phase-btn, .add-first-phase-btn, .add-event-btn {
+            display: flex;
+            align-items: center;
+            background-color: #f0f5ff;
+            color: #3b82f6;
+            border: 1px solid #d1e0ff;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .add-phase-btn:hover, .add-first-phase-btn:hover, .add-event-btn:hover {
+            background-color: #e0eaff;
+        }
+        
+        .add-phase-btn i, .add-first-phase-btn i, .add-event-btn i {
+            margin-right: 6px;
+            font-size: 12px;
+        }
+        
+        .empty-timeline-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 120px;
+            border: 1px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .empty-timeline-message p {
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+        
+        .timeline-phases {
+            position: relative;
+        }
+        
+        .timeline-phase {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 24px;
+        }
+        
+        .timeline-phase::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 24px;
+            bottom: -24px;
+            width: 2px;
+            background-color: #e5e7eb;
+        }
+        
+        .timeline-phase:last-child::before {
+            display: none;
+        }
+        
+        .phase-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 1;
+        }
+        
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .phase-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #111827;
+        }
+        
+        .phase-date {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .phase-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .edit-btn, .delete-btn, .save-btn, .cancel-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .edit-btn:hover, .save-btn:hover, .cancel-btn:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .delete-btn:hover {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+        
+        .edit-btn i, .delete-btn i, .save-btn i, .cancel-btn i {
+            font-size: 14px;
+        }
+        
+        .phase-edit-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .phase-edit-form input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .phase-events {
+            margin-left: 12px;
+            margin-top: 16px;
+        }
+        
+        .timeline-event {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .timeline-event:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .event-title {
+            font-weight: 500;
+            font-size: 14px;
+            color: #111827;
+            display: flex;
+            align-items: center;
+        }
+        
+        .event-title::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .event-date {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .event-content {
+            font-size: 14px;
+            color: #4b5563;
+            white-space: pre-line;
+        }
+        
+        .event-edit-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .event-edit-form input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .event-edit-form textarea {
+            grid-column: span 2;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .event-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        /* 移动设备适配 */
+        @media (max-width: 428px) {
+            .phase-edit-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .event-edit-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .event-edit-form textarea {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- iOS 状态栏 -->
+    <div class="ios-status-bar">
+        <div class="status-left">
+            <div class="status-time">9:41</div>
+        </div>
+        <div class="status-right">
+            <div class="status-icon"><i class="fas fa-signal"></i></div>
+            <div class="status-icon"><i class="fas fa-wifi"></i></div>
+            <div class="status-icon"><i class="fas fa-battery-full"></i></div>
+        </div>
+    </div>
+    
+    <div class="header">
+        <div class="header-title">星光伴行 - 深度定制系统</div>
+    </div>
+    
+    <!-- 顶部标签页切换 -->
+    <div class="tab-bar">
+        <div class="tab active">基础编辑</div>
+        <div class="tab">高级定制</div>
+        <div class="tab">预览效果</div>
+    </div>
+    
+    <!-- 1. 角色创建器 -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-icon">1</div>
+            <div>角色创建器</div>
+        </div>
+        <div class="section-content">
+            <div class="character-circle">
+                <!-- 使用真实图片替代纯色背景 -->
+            </div>
+            
+            <div class="mb-6">
+                <div class="card-title mb-3">性格类型词:</div>
+                <div class="magnetic-tags-container">
+                    <div class="magnetic-tags-field">
+                        <div class="magnetic-tag active" data-tag="温柔">
+                            <span class="tag-text">温柔</span>
+                            <span class="tag-remove"><i class="fas fa-times"></i></span>
+                        </div>
+                        <div class="magnetic-tag" data-tag="活泼">
+                            <span class="tag-text">活泼</span>
+                            <span class="tag-remove"><i class="fas fa-times"></i></span>
+                        </div>
+                        <div class="magnetic-tag" data-tag="自信">
+                            <span class="tag-text">自信</span>
+                            <span class="tag-remove"><i class="fas fa-times"></i></span>
+                        </div>
+                        <div class="magnetic-tag" data-tag="有趣">
+                            <span class="tag-text">有趣</span>
+                            <span class="tag-remove"><i class="fas fa-times"></i></span>
+                        </div>
+                        <div class="magnetic-tag add-tag">
+                            <i class="fas fa-plus mr-1"></i>
+                            <span class="tag-text">自定义</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tag-suggestions mt-3">
+                    <div class="tag-suggestion-title">推荐标签:</div>
+                    <div class="tag-suggestions-container">
+                        <div class="tag-suggestion" data-tag="善良">善良</div>
+                        <div class="tag-suggestion" data-tag="聪明">聪明</div>
+                        <div class="tag-suggestion" data-tag="幽默">幽默</div>
+                        <div class="tag-suggestion" data-tag="浪漫">浪漫</div>
+                        <div class="tag-suggestion" data-tag="体贴">体贴</div>
+                        <div class="tag-suggestion" data-tag="敏感">敏感</div>
+                        <div class="tag-suggestion" data-tag="勇敢">勇敢</div>
+                        <div class="tag-suggestion" data-tag="细心">细心</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <div class="card-title mb-3">背景故事:</div>
+                <div class="timeline-story-editor">
+                    <div class="timeline-editor-header">
+                        <h3 class="timeline-editor-title">时间线背景故事</h3>
+                        <button type="button" class="add-phase-btn">
+                            <i class="fas fa-plus"></i> 添加生活阶段
+                        </button>
+                    </div>
+                    
+                    <div class="timeline-phases">
+                        <!-- 时间线阶段将通过JavaScript动态生成 -->
+                        <div class="empty-timeline-message">
+                            <p>还没有生活阶段</p>
+                            <button type="button" class="add-first-phase-btn">
+                                <i class="fas fa-plus"></i> 添加第一个生活阶段
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <div class="card-title mb-3">互动风格:</div>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <div>互联网式</div>
+                        <div>对话式</div>
+                    </div>
+                    <div class="slider-track">
+                        <div class="slider-fill" style="width: 30%"></div>
+                    </div>
+                </div>
+                
+                <div class="card-title mt-5 mb-3">情感敏感度:</div>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <div>温和友谊</div>
+                        <div>深度共情</div>
+                    </div>
+                    <div class="slider-track">
+                        <div class="slider-fill" style="width: 70%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="card-title mb-3">高级角色定制</div>
+                <div class="card">
+                    <div class="card-subtitle">外观描述:</div>
+                    <p class="card-text mb-3">自定义角色的外观特征，着装风格，形象特点...</p>
+                    
+                    <div class="card-subtitle mt-4">记忆库与经历:</div>
+                    <p class="card-text mb-3">定义角色的过去经历，重要记忆，创伤和难以人生经历...</p>
+                    
+                    <div class="card-subtitle mt-4">对话风格:</div>
+                    <p class="card-text mb-3">自定义语言习惯，表达方式，专属词汇和语气特点...</p>
+                    
+                    <div class="card-subtitle mt-4">情感回应模式:</div>
+                    <p class="card-text">定义角色在情绪波动时的回应方式和应对情感危机...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 2. 剧情与世界构建器 -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-icon">2</div>
+            <div>剧情与世界构建器</div>
+        </div>
+        <div class="section-content">
+            <!-- 亲密度进度系统 -->
+            <div class="mb-5">
+                <div class="card-title mb-3">亲密度进度系统</div>
+                <div class="intimacy-system">
+                    <div class="intimacy-level-container">
+                        <div class="intimacy-level active">
+                            <div class="intimacy-icon">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <div class="intimacy-name">初识</div>
+                        </div>
+                        <div class="intimacy-progress-line"></div>
+                        <div class="intimacy-level">
+                            <div class="intimacy-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <div class="intimacy-name">熟悉</div>
+                        </div>
+                        <div class="intimacy-progress-line"></div>
+                        <div class="intimacy-level">
+                            <div class="intimacy-icon">
+                                <i class="fas fa-tree"></i>
+                            </div>
+                            <div class="intimacy-name">亲近</div>
+                        </div>
+                        <div class="intimacy-progress-line"></div>
+                        <div class="intimacy-level">
+                            <div class="intimacy-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="intimacy-name">知己</div>
+                        </div>
+                        <div class="intimacy-progress-line"></div>
+                        <div class="intimacy-level locked">
+                            <div class="intimacy-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div class="intimacy-name">灵魂伴侣</div>
+                        </div>
+                    </div>
+                    <div class="intimacy-details">
+                        <div class="intimacy-current">
+                            <span class="intimacy-label">当前亲密度:</span>
+                            <span class="intimacy-value">125 / 500</span>
+                        </div>
+                        <div class="intimacy-progress-bar">
+                            <div class="intimacy-progress-fill" style="width: 25%">
+                                <div class="intimacy-progress-handle"></div>
+                            </div>
+                        </div>
+                        <div class="intimacy-benefits">
+                            <div class="intimacy-benefit-title">当前等级特权:</div>
+                            <div class="intimacy-benefit-item">
+                                <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                <span>基础对话模式</span>
+                            </div>
+                            <div class="intimacy-benefit-item">
+                                <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                <span>角色记忆功能</span>
+                            </div>
+                            <div class="intimacy-benefit-item locked">
+                                <i class="fas fa-lock text-gray-400 mr-1"></i>
+                                <span>深度情感互动 (需要亲近等级)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 粒子效果容器 -->
+            <div class="particles-container"></div>
+            
+            <div class="mb-4">
+                <div class="card-title mb-3">选择世界观基础:</div>
+                <div class="flex flex-wrap">
+                    <div class="world-option active">现代都市</div>
+                    <div class="world-option">奇幻世界</div>
+                    <div class="world-option">完全自定义</div>
+                </div>
+            </div>
+            
+            <div class="flex mt-4 -mx-2">
+                <div class="w-1/2 px-2">
+                    <div class="card-title mb-3">剧情卡设计器</div>
+                    <div class="feature-card">
+                        <div class="flex items-center">
+                            <i class="fas fa-map-marked-alt text-pink-500 mr-2"></i>
+                            <span class="text-sm font-medium">背景设定</span>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="flex items-center">
+                            <i class="fas fa-history text-pink-500 mr-2"></i>
+                            <span class="text-sm font-medium">关系历史</span>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="flex items-center">
+                            <i class="fas fa-street-view text-pink-500 mr-2"></i>
+                            <span class="text-sm font-medium">当前情境设定</span>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="flex items-center">
+                            <i class="fas fa-chart-line text-pink-500 mr-2"></i>
+                            <span class="text-sm font-medium">潜在情感发展</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-1/2 px-2">
+                    <div class="card-title mb-3">情感主题设置</div>
+                    <div class="mb-3">
+                        <div class="text-sm font-medium mb-1">核心情感主题:</div>
+                        <div class="theme-card">
+                            <div class="flex items-center">
+                                <i class="fas fa-heart text-yellow-600 mr-2"></i>
+                                <span class="text-sm">相互理解与成长</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="text-sm font-medium mb-1">角色内在冲突:</div>
+                        <div class="theme-card">
+                            <div class="flex items-center">
+                                <i class="fas fa-balance-scale text-yellow-600 mr-2"></i>
+                                <span class="text-sm">理想与现实的平衡</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-sm font-medium mb-1">关系发展方向:</div>
+                        <div class="theme-card">
+                            <div class="flex items-center">
+                                <i class="fas fa-route text-yellow-600 mr-2"></i>
+                                <span class="text-sm">从疏远到相互理解</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 3. 导入/导出与预设库 -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-icon">3</div>
+            <div>导入/导出与预设库</div>
+        </div>
+        <div class="section-content">
+            <div class="mb-5">
+                <div class="card-title mb-3">角色卡格式数据</div>
+                <div class="flex mb-3">
+                    <button class="import-export-button mr-2 bg-indigo-100 text-indigo-700">
+                        <i class="fas fa-file-import"></i> 导入角色卡
+                    </button>
+                    <button class="import-export-button bg-indigo-100 text-indigo-700">
+                        <i class="fas fa-file-export"></i> 导出角色卡
+                    </button>
+                </div>
+                <div class="text-xs text-gray-500 flex items-center">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    支持: JSON, PNG-Card, CSV
+                </div>
+            </div>
+            
+            <div>
+                <div class="card-title mb-3">发现精选角色与剧情</div>
+                <div class="flex -mx-2 overflow-x-auto pb-2">
+                    <div class="px-2 min-w-[120px] w-1/3">
+                        <div class="preset-card">
+                            <div class="preset-header" style="background: linear-gradient(135deg, #ff9a9e, #ff2d55);">温柔疗愈系</div>
+                            <div class="flex justify-center py-3">
+                                <div class="preset-image" style="background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80');"></div>
+                            </div>
+                            <div class="preset-footer">
+                                <div class="font-medium mb-1">专注情绪支持</div>
+                                <div class="flex items-center justify-center text-xs">
+                                    <i class="fas fa-download mr-1"></i> 12.5k
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-2 min-w-[120px] w-1/3">
+                        <div class="preset-card">
+                            <div class="preset-header" style="background: linear-gradient(135deg, #a18cd1, #6b5dd3);">思考导师型</div>
+                            <div class="flex justify-center py-3">
+                                <div class="preset-image" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80');"></div>
+                            </div>
+                            <div class="preset-footer">
+                                <div class="font-medium mb-1">深度哲学对话</div>
+                                <div class="flex items-center justify-center text-xs">
+                                    <i class="fas fa-download mr-1"></i> 8.3k
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-2 min-w-[120px] w-1/3">
+                        <div class="preset-card">
+                            <div class="preset-header" style="background: linear-gradient(135deg, #84fab0, #4cc2a8);">创意伙伴型</div>
+                            <div class="flex justify-center py-3">
+                                <div class="preset-image" style="background-image: url('https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80');"></div>
+                            </div>
+                            <div class="preset-footer">
+                                <div class="font-medium mb-1">激发创造力</div>
+                                <div class="flex items-center justify-center text-xs">
+                                    <i class="fas fa-download mr-1"></i> 9.7k
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 角色外观定制 -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-icon">4</div>
+            <div>角色外观定制</div>
+        </div>
+        <div class="section-content">
+            <div class="appearance-editor">
+                <div class="appearance-header">
+                    <div>
+                        <div class="appearance-title">外观定制</div>
+                        <div class="appearance-subtitle">定制角色的外观特征和风格</div>
+                    </div>
+                </div>
+                
+                <div class="appearance-grid">
+                    <div class="avatar-uploader">
+                        <div class="avatar-preview">
+                            <div class="avatar-placeholder" id="avatarPlaceholder">
+                                <i class="fas fa-user"></i>
+                                <div>点击上传头像</div>
+                            </div>
+                            <img src="" alt="角色头像" class="avatar-image" id="avatarImage" style="display: none;">
+                        </div>
+                        
+                        <label for="avatarUpload" class="avatar-upload-btn">
+                            <i class="fas fa-upload"></i>
+                            <span>上传头像</span>
+                        </label>
+                        <input type="file" id="avatarUpload" class="avatar-upload-input" accept="image/*">
+                        
+                        <button class="ai-generate-btn">
+                            <i class="fas fa-magic"></i>
+                            <span>AI生成角色形象</span>
+                        </button>
+                    </div>
+                    
+                    <div class="appearance-options">
+                        <div class="appearance-section">
+                            <div class="appearance-section-title">外观特征</div>
+                            
+                            <div>
+                                <div class="text-sm font-medium mb-2">发型:</div>
+                                <div class="feature-options">
+                                    <div class="feature-option active">短发</div>
+                                    <div class="feature-option">中长发</div>
+                                    <div class="feature-option">长发</div>
+                                    <div class="feature-option">卷发</div>
+                                    <div class="feature-option">直发</div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="text-sm font-medium mb-2">发色:</div>
+                                <div class="color-options">
+                                    <div class="color-option active" style="background-color: #000000;"></div>
+                                    <div class="color-option" style="background-color: #6b4423;"></div>
+                                    <div class="color-option" style="background-color: #d4a373;"></div>
+                                    <div class="color-option" style="background-color: #e5e5e5;"></div>
+                                    <div class="color-option" style="background-color: #ff9eaa;"></div>
+                                    <div class="color-option" style="background-color: #a18cd1;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="text-sm font-medium mb-2">眼睛:</div>
+                                <div class="feature-options">
+                                    <div class="feature-option active">圆眼</div>
+                                    <div class="feature-option">细长眼</div>
+                                    <div class="feature-option">大眼</div>
+                                    <div class="feature-option">单眼皮</div>
+                                    <div class="feature-option">双眼皮</div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="text-sm font-medium mb-2">眼色:</div>
+                                <div class="color-options">
+                                    <div class="color-option active" style="background-color: #000000;"></div>
+                                    <div class="color-option" style="background-color: #6b4423;"></div>
+                                    <div class="color-option" style="background-color: #5e81ac;"></div>
+                                    <div class="color-option" style="background-color: #a3be8c;"></div>
+                                    <div class="color-option" style="background-color: #b48ead;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="appearance-section">
+                            <div class="appearance-section-title">风格定制</div>
+                            
+                            <div class="style-options">
+                                <div class="style-option active">
+                                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="现代都市">
+                                    <div class="style-name">现代都市</div>
+                                </div>
+                                <div class="style-option">
+                                    <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="学院风">
+                                    <div class="style-name">学院风</div>
+                                </div>
+                                <div class="style-option">
+                                    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="时尚潮流">
+                                    <div class="style-name">时尚潮流</div>
+                                </div>
+                                <div class="style-option">
+                                    <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="运动活力">
+                                    <div class="style-name">运动活力</div>
+                                </div>
+                                <div class="style-option">
+                                    <img src="https://images.unsplash.com/photo-1581044777550-4cfa60707c03?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="复古文艺">
+                                    <div class="style-name">复古文艺</div>
+                                </div>
+                                <div class="style-option">
+                                    <img src="https://images.unsplash.com/photo-1536766768598-e09213fdcf22?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="奇幻风格">
+                                    <div class="style-name">奇幻风格</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="appearance-actions">
+                            <button class="appearance-action-btn outline">
+                                <i class="fas fa-undo"></i>
+                                <span>重置</span>
+                            </button>
+                            <button class="appearance-action-btn primary">
+                                <i class="fas fa-save"></i>
+                                <span>保存</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 性格特点设置 -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-title">性格特点设置</div>
+            <div class="section-subtitle">设置角色的性格特点，让角色更加丰满</div>
+        </div>
+        
+        <div class="character-trait-editor">
+            <div class="editor-header">
+                <div>
+                    <div class="editor-title">角色属性编辑器</div>
+                    <div class="editor-subtitle">拖动滑块来调整你的角色性格特点</div>
+                </div>
+                <div class="editor-actions">
+                    <div class="editor-action-btn outline" id="resetTraitsBtn">
+                        <i class="fas fa-undo"></i>
+                        <span>重置</span>
+                    </div>
+                    <div class="editor-action-btn primary" id="saveTraitsBtn">
+                        <i class="fas fa-save"></i>
+                        <span>保存</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="editor-grid">
+                <div class="editor-main">
+                    <div class="character-name-input">
+                        <label class="character-name-label" for="character-name">角色名称</label>
+                        <input type="text" id="character-name" class="character-name-field" value="未命名角色" placeholder="输入角色名称">
+                    </div>
+                    
+                    <div class="trait-sliders" id="traitSliders">
+                        <!-- 性格特点滑块将通过JavaScript动态生成 -->
+                    </div>
+                    
+                    <button class="add-trait-btn" id="addTraitBtn">
+                        <i class="fas fa-plus"></i> 添加新的性格特点
+                    </button>
+                </div>
+                
+                <div class="editor-preview">
+                    <div class="preview-card">
+                        <div class="preview-header">
+                            <div class="preview-title" id="previewName">未命名角色</div>
+                        </div>
+                        <div class="preview-content">
+                            <div class="preview-section">
+                                <div class="preview-section-title">性格概览</div>
+                                <div class="preview-traits" id="previewTraits">
+                                    <!-- 性格特点预览将通过JavaScript动态生成 -->
+                                </div>
+                            </div>
+                            
+                            <div class="preview-description" id="previewDescription">
+                                这个角色还没有详细的描述。调整性格特点滑块来生成角色描述。
+                            </div>
+                            
+                            <button class="preview-action">
+                                <i class="fas fa-chevron-right"></i> 查看完整角色信息
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加特点对话框 -->
+            <div class="trait-dialog" id="traitDialog">
+                <div class="trait-dialog-content">
+                    <div class="trait-dialog-header">
+                        <div class="trait-dialog-title">添加新的性格特点</div>
+                    </div>
+                    <div class="trait-dialog-body">
+                        <div class="trait-dialog-form">
+                            <div class="trait-dialog-field">
+                                <label class="trait-dialog-label" for="trait-name">特点名称</label>
+                                <input type="text" id="trait-name" class="trait-dialog-input" placeholder="例如：勇敢">
+                            </div>
+                            <div class="trait-dialog-field">
+                                <label class="trait-dialog-label" for="trait-opposite">对立特点</label>
+                                <input type="text" id="trait-opposite" class="trait-dialog-input" placeholder="例如：谨慎">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trait-dialog-footer">
+                        <button class="trait-dialog-btn cancel" id="cancelTraitBtn">取消</button>
+                        <button class="trait-dialog-btn confirm" id="confirmTraitBtn">添加</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <div class="nav-icon">
+                <i class="fas fa-home"></i>
+            </div>
+            <div class="nav-text">首页</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">
+                <i class="fas fa-comment-alt"></i>
+            </div>
+            <div class="nav-text">聊天</div>
+        </div>
+        <div class="nav-item active">
+            <div class="nav-icon">
+                <i class="fas fa-magic"></i>
+            </div>
+            <div class="nav-text">创作</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">
+                <i class="fas fa-compass"></i>
+            </div>
+            <div class="nav-text">社区</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="nav-text">我的</div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 原有的初始化代码
+            // ... existing code ...
+            
+            // 初始化性格特点数据
+            const traits = [
+                { id: "1", name: "勇敢", value: 70, opposite: "谨慎" },
+                { id: "2", name: "外向", value: 60, opposite: "内向" },
+                { id: "3", name: "理性", value: 40, opposite: "感性" },
+                { id: "4", name: "乐观", value: 80, opposite: "悲观" },
+                { id: "5", name: "慷慨", value: 65, opposite: "吝啬" }
+            ];
+            
+            // 渲染性格特点滑块
+            function renderTraitSliders() {
+                const container = document.getElementById('traitSliders');
+                container.innerHTML = '';
+                
+                traits.forEach(trait => {
+                    const slider = document.createElement('div');
+                    slider.className = 'trait-slider';
+                    slider.dataset.id = trait.id;
+                    
+                    slider.innerHTML = `
+                        <div class="trait-labels">
+                            <div class="trait-label">${trait.opposite}</div>
+                            <div class="trait-label">${trait.name}</div>
+                        </div>
+                        <div class="trait-slider-container" data-id="${trait.id}">
+                            <div class="trait-slider-track" style="width: ${trait.value}%"></div>
+                            <div class="trait-slider-thumb" style="left: ${trait.value}%"></div>
+                        </div>
+                        <div class="trait-values">
+                            <div>${100 - trait.value}%</div>
+                            <div>${trait.value}%</div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(slider);
+                    
+                    // 添加滑块交互
+                    initSlider(slider.querySelector('.trait-slider-container'));
+                });
+                
+                // 更新预览
+                updatePreview();
+            }
+            
+            // 初始化滑块交互
+            function initSlider(sliderContainer) {
+            let isDragging = false;
+            
+                // 鼠标/触摸事件处理
+                const handleMove = (e) => {
+                    if (!isDragging) return;
+                    
+                    const rect = sliderContainer.getBoundingClientRect();
+                    const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                    let percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
+                    
+                    // 更新滑块位置
+                    updateSliderPosition(sliderContainer, percent);
+                    
+                    // 更新特点数据
+                    const traitId = sliderContainer.dataset.id;
+                    const traitIndex = traits.findIndex(t => t.id === traitId);
+                    if (traitIndex !== -1) {
+                        traits[traitIndex].value = Math.round(percent);
+                        
+                        // 更新预览
+                        updatePreview();
+                    }
+                };
+                
+                // 鼠标事件
+                sliderContainer.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                    handleMove(e);
+                });
+                
+                document.addEventListener('mousemove', handleMove);
+                
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+                
+                // 触摸事件
+                sliderContainer.addEventListener('touchstart', (e) => {
+                    isDragging = true;
+                    handleMove(e);
+                });
+                
+                document.addEventListener('touchmove', handleMove);
+                
+                document.addEventListener('touchend', () => {
+                    isDragging = false;
+                });
+                
+                // 点击事件
+                sliderContainer.addEventListener('click', (e) => {
+                    const rect = sliderContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                    let percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
+                    
+                    // 更新滑块位置
+                    updateSliderPosition(sliderContainer, percent);
+                    
+                    // 更新特点数据
+                    const traitId = sliderContainer.dataset.id;
+                    const traitIndex = traits.findIndex(t => t.id === traitId);
+                    if (traitIndex !== -1) {
+                        traits[traitIndex].value = Math.round(percent);
+                        
+                        // 更新预览
+                        updatePreview();
+                    }
+                });
+            }
+            
+            // 更新滑块位置
+            function updateSliderPosition(sliderContainer, percent) {
+                const track = sliderContainer.querySelector('.trait-slider-track');
+                const thumb = sliderContainer.querySelector('.trait-slider-thumb');
+                const slider = sliderContainer.closest('.trait-slider');
+                const values = slider.querySelector('.trait-values');
+                
+                track.style.width = `${percent}%`;
+                thumb.style.left = `${percent}%`;
+                
+                // 更新百分比显示
+                values.children[0].textContent = `${Math.round(100 - percent)}%`;
+                values.children[1].textContent = `${Math.round(percent)}%`;
+            }
+            
+            // 更新预览
+            function updatePreview() {
+                const previewName = document.getElementById('previewName');
+                const previewTraits = document.getElementById('previewTraits');
+                const previewDescription = document.getElementById('previewDescription');
+                const characterName = document.getElementById('character-name').value || '未命名角色';
+                
+                // 更新名称
+                previewName.textContent = characterName;
+                
+                // 更新特点预览
+                previewTraits.innerHTML = '';
+                
+                traits.forEach(trait => {
+                    const traitElement = document.createElement('div');
+                    traitElement.className = 'preview-trait';
+                    
+                    traitElement.innerHTML = `
+                        <div class="preview-trait-left">${trait.value < 50 ? trait.opposite : trait.name}</div>
+                        <div class="preview-trait-bar">
+                            <div class="preview-trait-progress" style="width: ${trait.value}%"></div>
+                        </div>
+                        <div class="preview-trait-right">${trait.value}%</div>
+                    `;
+                    
+                    previewTraits.appendChild(traitElement);
+                });
+                
+                // 更新描述
+                const significantTraits = traits.filter(trait => Math.abs(trait.value - 50) > 10);
+                
+                if (significantTraits.length > 0) {
+                    let description = `${characterName}是一个`;
+                    
+                    significantTraits.forEach((trait, index) => {
+                        const traitName = trait.value > 50 ? trait.name : trait.opposite;
+                        
+                        if (index === 0) {
+                            description += traitName;
+                        } else if (index === significantTraits.length - 1) {
+                            description += `且${traitName}`;
+                    } else {
+                            description += `、${traitName}`;
+                        }
+                    });
+                    
+                    description += '的人。';
+                    previewDescription.textContent = description;
+                } else {
+                    previewDescription.textContent = '这个角色的性格特点比较平衡，没有明显的倾向。';
+                }
+            }
+            
+            // 重置特点
+            function resetTraits() {
+                traits.forEach(trait => {
+                    trait.value = 50;
+                });
+                
+                renderTraitSliders();
+            }
+            
+            // 添加新特点
+            function addTrait() {
+                const traitName = document.getElementById('trait-name').value;
+                const traitOpposite = document.getElementById('trait-opposite').value;
+                
+                if (traitName && traitOpposite) {
+                    const newTrait = {
+                        id: `${traits.length + 1}`,
+                        name: traitName,
+                        value: 50,
+                        opposite: traitOpposite
+                    };
+                    
+                    traits.push(newTrait);
+                    renderTraitSliders();
+                    
+                    // 关闭对话框
+                    closeTraitDialog();
+                    
+                    // 清空输入
+                    document.getElementById('trait-name').value = '';
+                    document.getElementById('trait-opposite').value = '';
+                }
+            }
+            
+            // 打开特点对话框
+            function openTraitDialog() {
+                const dialog = document.getElementById('traitDialog');
+                dialog.classList.add('active');
+            }
+            
+            // 关闭特点对话框
+            function closeTraitDialog() {
+                const dialog = document.getElementById('traitDialog');
+                dialog.classList.remove('active');
+            }
+            
+            // 保存特点
+            function saveTraits() {
+                // 这里可以添加保存逻辑，例如发送到服务器
+                alert('角色特点已保存！');
+            }
+            
+            // 初始化事件监听
+            function initEvents() {
+                // 角色名称输入
+                document.getElementById('character-name').addEventListener('input', updatePreview);
+                
+                // 重置按钮
+                document.getElementById('resetTraitsBtn').addEventListener('click', resetTraits);
+                
+                // 保存按钮
+                document.getElementById('saveTraitsBtn').addEventListener('click', saveTraits);
+                
+                // 添加特点按钮
+                document.getElementById('addTraitBtn').addEventListener('click', openTraitDialog);
+                
+                // 取消添加特点
+                document.getElementById('cancelTraitBtn').addEventListener('click', closeTraitDialog);
+                
+                // 确认添加特点
+                document.getElementById('confirmTraitBtn').addEventListener('click', addTrait);
+            }
+            
+            // 初始化角色属性编辑器
+            renderTraitSliders();
+            initEvents();
+            
+            // 角色外观定制功能
+            initAppearanceEditor();
+        });
+        
+        // 角色外观定制功能
+        function initAppearanceEditor() {
+            // 头像上传功能
+            const avatarUpload = document.getElementById('avatarUpload');
+            const avatarImage = document.getElementById('avatarImage');
+            const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+            
+            avatarUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        avatarImage.src = e.target.result;
+                        avatarImage.style.display = 'block';
+                        avatarPlaceholder.style.display = 'none';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 点击头像预览区域触发上传
+            avatarPlaceholder.addEventListener('click', function() {
+                avatarUpload.click();
+            });
+            
+            // 特征选项点击事件
+            const featureOptions = document.querySelectorAll('.feature-option');
+            featureOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除同组中其他选项的active类
+                    const parent = this.parentElement;
+                    parent.querySelectorAll('.feature-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    // 添加active类到当前选项
+                    this.classList.add('active');
+                });
+            });
+            
+            // 颜色选项点击事件
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除同组中其他选项的active类
+                    const parent = this.parentElement;
+                    parent.querySelectorAll('.color-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    // 添加active类到当前选项
+                    this.classList.add('active');
+                });
+            });
+            
+            // 风格选项点击事件
+            const styleOptions = document.querySelectorAll('.style-option');
+            styleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除其他选项的active类
+                    styleOptions.forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    // 添加active类到当前选项
+                    this.classList.add('active');
+                });
+            });
+            
+            // AI生成按钮点击事件
+            const aiGenerateBtn = document.querySelector('.ai-generate-btn');
+            aiGenerateBtn.addEventListener('click', function() {
+                // 模拟AI生成过程
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>生成中...</span>';
+                this.disabled = true;
+                
+                setTimeout(() => {
+                    // 随机选择一个示例头像
+                    const randomImages = [
+                        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+                        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+                        'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+                        'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'
+                    ];
+                    
+                    const randomIndex = Math.floor(Math.random() * randomImages.length);
+                    avatarImage.src = randomImages[randomIndex];
+                    avatarImage.style.display = 'block';
+                    avatarPlaceholder.style.display = 'none';
+                    
+                    this.innerHTML = '<i class="fas fa-magic"></i> <span>AI生成角色形象</span>';
+                    this.disabled = false;
+                        
+                        // 触发振动反馈
+                        if ('vibrate' in navigator) {
+                        navigator.vibrate([30, 20, 30]);
+                    }
+                    
+                    // 显示成功提示
+                    alert('AI已成功生成角色形象！');
+                }, 2000);
+            });
+            
+            // 重置按钮点击事件
+            const resetBtn = document.querySelector('.appearance-action-btn.outline');
+            resetBtn.addEventListener('click', function() {
+                // 重置头像
+                avatarImage.style.display = 'none';
+                avatarPlaceholder.style.display = 'flex';
+                avatarUpload.value = '';
+                
+                // 重置特征选项
+                document.querySelectorAll('.feature-options').forEach(group => {
+                    const options = group.querySelectorAll('.feature-option');
+                    options.forEach((opt, index) => {
+                        if (index === 0) {
+                            opt.classList.add('active');
+                        } else {
+                            opt.classList.remove('active');
+                    }
+                });
+            });
+            
+                // 重置颜色选项
+                document.querySelectorAll('.color-options').forEach(group => {
+                    const options = group.querySelectorAll('.color-option');
+                    options.forEach((opt, index) => {
+                        if (index === 0) {
+                            opt.classList.add('active');
+                        } else {
+                            opt.classList.remove('active');
+                        }
+                    });
+                });
+                
+                // 重置风格选项
+                styleOptions.forEach((opt, index) => {
+                    if (index === 0) {
+                        opt.classList.add('active');
+                    } else {
+                        opt.classList.remove('active');
+                    }
+                });
+            });
+            
+            // 保存按钮点击事件
+            const saveBtn = document.querySelector('.appearance-action-btn.primary');
+            saveBtn.addEventListener('click', function() {
+                // 收集所有选中的特征
+                const selectedFeatures = [];
+                document.querySelectorAll('.feature-option.active').forEach(opt => {
+                    selectedFeatures.push(opt.textContent);
+                });
+                
+                // 收集所有选中的颜色
+                const selectedColors = [];
+                document.querySelectorAll('.color-option.active').forEach(opt => {
+                    selectedColors.push(opt.style.backgroundColor);
+                });
+                
+                // 获取选中的风格
+                const selectedStyle = document.querySelector('.style-option.active .style-name').textContent;
+                
+                // 模拟保存过程
+                alert(`已保存角色外观设置！\n特征: ${selectedFeatures.join(', ')}\n风格: ${selectedStyle}`);
+                
+                // 触发振动反馈
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([30, 20, 30]);
+                }
+            });
+        }
+        
+        // 时间线背景故事编辑器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 生成唯一ID
+            function generateId() {
+                return Math.random().toString(36).substring(2, 9);
+            }
+            
+            // 初始化时间线数据
+            let timelinePhases = [
+                {
+                    id: generateId(),
+                    title: '童年时期',
+                    startDate: '2000-01-01',
+                    endDate: '2010-12-31',
+                    events: [
+                        {
+                            id: generateId(),
+                            date: '2005-06-15',
+                            title: '第一次钢琴演奏',
+                            content: '在学校的音乐会上第一次公开演奏钢琴，获得了很多掌声和鼓励。'
+                        }
+                    ]
+                },
+                {
+                    id: generateId(),
+                    title: '青少年时期',
+                    startDate: '2011-01-01',
+                    endDate: '2018-12-31',
+                    events: [
+                        {
+                            id: generateId(),
+                            date: '2015-09-01',
+                            title: '进入高中',
+                            content: '考入了省重点高中，开始了紧张而充实的高中生活。'
+                        },
+                        {
+                            id: generateId(),
+                            date: '2018-06-20',
+                            title: '高考成功',
+                            content: '高考取得优异成绩，被理想的大学录取。这是人生的重要转折点。'
+                        }
+                    ]
+                }
+            ];
+            
+            // 当前编辑状态
+            let editingPhaseId = null;
+            let editingEvent = null;
+            
+            // 渲染时间线
+            function renderTimeline() {
+                const timelinePhasesEl = document.querySelector('.timeline-phases');
+                const emptyMessage = document.querySelector('.empty-timeline-message');
+                
+                if (timelinePhases.length === 0) {
+                    emptyMessage.style.display = 'flex';
+                    timelinePhasesEl.innerHTML = '';
+                    timelinePhasesEl.appendChild(emptyMessage);
+                    return;
+                }
+                
+                emptyMessage.style.display = 'none';
+                timelinePhasesEl.innerHTML = '';
+                
+                timelinePhases.forEach(phase => {
+                    const phaseEl = document.createElement('div');
+                    phaseEl.className = 'timeline-phase';
+                    phaseEl.dataset.id = phase.id;
+                    
+                    if (editingPhaseId === phase.id) {
+                        // 编辑模式
+                        phaseEl.innerHTML = `
+                            <div class="phase-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="phase-edit-form">
+                                <input type="text" class="phase-title-input" value="${phase.title}" placeholder="阶段标题">
+                                <input type="date" class="phase-start-date" value="${phase.startDate}">
+                                <input type="date" class="phase-end-date" value="${phase.endDate}">
+                            </div>
+                            <div class="phase-actions">
+                                <button type="button" class="save-btn" data-id="${phase.id}">
+                                    <i class="fas fa-check"></i> 保存
+                                </button>
+                                <button type="button" class="cancel-btn" data-id="${phase.id}">
+                                    <i class="fas fa-times"></i> 取消
+                                </button>
+                                <button type="button" class="delete-btn" data-id="${phase.id}">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        // 查看模式
+                        phaseEl.innerHTML = `
+                            <div class="phase-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="phase-header">
+                                <div>
+                                    <div class="phase-title">${phase.title}</div>
+                                    <div class="phase-date">${formatDate(phase.startDate)} - ${formatDate(phase.endDate)}</div>
+                                </div>
+                                <div class="phase-actions">
+                                    <button type="button" class="edit-btn" data-id="${phase.id}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // 添加事件列表
+                    const eventsEl = document.createElement('div');
+                    eventsEl.className = 'phase-events';
+                    
+                    phase.events.forEach(event => {
+                        const eventEl = document.createElement('div');
+                        eventEl.className = 'timeline-event';
+                        eventEl.dataset.id = event.id;
+                        
+                        if (editingEvent && editingEvent.phaseId === phase.id && editingEvent.eventId === event.id) {
+                            // 编辑事件模式
+                            eventEl.innerHTML = `
+                                <div class="event-edit-form">
+                                    <input type="text" class="event-title-input" value="${event.title}" placeholder="事件标题">
+                                    <input type="date" class="event-date-input" value="${event.date}">
+                                    <textarea class="event-content-input" placeholder="事件描述">${event.content}</textarea>
+                                </div>
+                                <div class="event-actions">
+                                    <button type="button" class="save-event-btn" data-phase-id="${phase.id}" data-event-id="${event.id}">
+                                        <i class="fas fa-check"></i> 保存
+                                    </button>
+                                    <button type="button" class="cancel-event-btn" data-phase-id="${phase.id}" data-event-id="${event.id}">
+                                        <i class="fas fa-times"></i> 取消
+                                    </button>
+                                    <button type="button" class="delete-event-btn" data-phase-id="${phase.id}" data-event-id="${event.id}">
+                                        <i class="fas fa-trash"></i> 删除
+                                    </button>
+                                </div>
+                            `;
+                        } else {
+                            // 查看事件模式
+                            eventEl.innerHTML = `
+                                <div class="event-header">
+                                    <div class="event-title">${event.title}</div>
+                                    <div class="event-actions">
+                                        <span class="event-date">${formatDate(event.date)}</span>
+                                        <button type="button" class="edit-event-btn" data-phase-id="${phase.id}" data-event-id="${event.id}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="event-content">${event.content}</div>
+                            `;
+                        }
+                        
+                        eventsEl.appendChild(eventEl);
+                    });
+                    
+                    // 添加事件按钮
+                    const addEventBtn = document.createElement('button');
+                    addEventBtn.className = 'add-event-btn';
+                    addEventBtn.dataset.id = phase.id;
+                    addEventBtn.innerHTML = '<i class="fas fa-plus"></i> 添加事件';
+                    eventsEl.appendChild(addEventBtn);
+                    
+                    phaseEl.appendChild(eventsEl);
+                    timelinePhasesEl.appendChild(phaseEl);
+                });
+                
+                // 绑定事件处理
+                bindTimelineEvents();
+            }
+            
+            // 格式化日期
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('zh-CN');
+            }
+            
+            // 绑定时间线事件处理
+            function bindTimelineEvents() {
+                // 添加生活阶段
+                document.querySelectorAll('.add-phase-btn, .add-first-phase-btn').forEach(btn => {
+                    btn.addEventListener('click', addPhase);
+                });
+                
+                // 编辑生活阶段
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        editingPhaseId = this.dataset.id;
+                        renderTimeline();
+                    });
+                });
+                
+                // 保存生活阶段
+                document.querySelectorAll('.save-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const phaseId = this.dataset.id;
+                        const phaseEl = document.querySelector(`.timeline-phase[data-id="${phaseId}"]`);
+                        const titleInput = phaseEl.querySelector('.phase-title-input');
+                        const startDateInput = phaseEl.querySelector('.phase-start-date');
+                        const endDateInput = phaseEl.querySelector('.phase-end-date');
+                        
+                        const phaseIndex = timelinePhases.findIndex(p => p.id === phaseId);
+                        if (phaseIndex !== -1) {
+                            timelinePhases[phaseIndex].title = titleInput.value;
+                            timelinePhases[phaseIndex].startDate = startDateInput.value;
+                            timelinePhases[phaseIndex].endDate = endDateInput.value;
+                        }
+                        
+                        editingPhaseId = null;
+                        renderTimeline();
+                    });
+                });
+                
+                // 取消编辑生活阶段
+                document.querySelectorAll('.cancel-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        editingPhaseId = null;
+                        renderTimeline();
+                    });
+                });
+                
+                // 删除生活阶段
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const phaseId = this.dataset.id;
+                        timelinePhases = timelinePhases.filter(p => p.id !== phaseId);
+                        renderTimeline();
+                    });
+                });
+                
+                // 添加事件
+                document.querySelectorAll('.add-event-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const phaseId = this.dataset.id;
+                        const phaseIndex = timelinePhases.findIndex(p => p.id === phaseId);
+                        
+                        if (phaseIndex !== -1) {
+                            const newEvent = {
+                                id: generateId(),
+                                date: new Date().toISOString().split('T')[0],
+                                title: '新事件',
+                                content: ''
+                            };
+                            
+                            timelinePhases[phaseIndex].events.push(newEvent);
+                            editingEvent = {
+                                phaseId: phaseId,
+                                eventId: newEvent.id
+                            };
+                            renderTimeline();
+                        }
+                    });
+                });
+                
+                // 编辑事件
+                document.querySelectorAll('.edit-event-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        editingEvent = {
+                            phaseId: this.dataset.phaseId,
+                            eventId: this.dataset.eventId
+                        };
+                        renderTimeline();
+                    });
+                });
+                
+                // 保存事件
+                document.querySelectorAll('.save-event-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const phaseId = this.dataset.phaseId;
+                        const eventId = this.dataset.eventId;
+                        const eventEl = document.querySelector(`.timeline-event[data-id="${eventId}"]`);
+                        const titleInput = eventEl.querySelector('.event-title-input');
+                        const dateInput = eventEl.querySelector('.event-date-input');
+                        const contentInput = eventEl.querySelector('.event-content-input');
+                        
+                        const phaseIndex = timelinePhases.findIndex(p => p.id === phaseId);
+                        if (phaseIndex !== -1) {
+                            const eventIndex = timelinePhases[phaseIndex].events.findIndex(e => e.id === eventId);
+                            if (eventIndex !== -1) {
+                                timelinePhases[phaseIndex].events[eventIndex].title = titleInput.value;
+                                timelinePhases[phaseIndex].events[eventIndex].date = dateInput.value;
+                                timelinePhases[phaseIndex].events[eventIndex].content = contentInput.value;
+                            }
+                        }
+                        
+                        editingEvent = null;
+                        renderTimeline();
+                    });
+                });
+                
+                // 取消编辑事件
+                document.querySelectorAll('.cancel-event-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        editingEvent = null;
+                        renderTimeline();
+                    });
+                });
+                
+                // 删除事件
+                document.querySelectorAll('.delete-event-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const phaseId = this.dataset.phaseId;
+                        const eventId = this.dataset.eventId;
+                        
+                        const phaseIndex = timelinePhases.findIndex(p => p.id === phaseId);
+                        if (phaseIndex !== -1) {
+                            timelinePhases[phaseIndex].events = timelinePhases[phaseIndex].events.filter(e => e.id !== eventId);
+                        }
+                        
+                        editingEvent = null;
+                        renderTimeline();
+                    });
+                });
+            }
+            
+            // 添加生活阶段
+            function addPhase() {
+                const newPhase = {
+                    id: generateId(),
+                    title: '新生活阶段',
+                    startDate: new Date().toISOString().split('T')[0],
+                    endDate: new Date().toISOString().split('T')[0],
+                    events: []
+                };
+                
+                timelinePhases.push(newPhase);
+                editingPhaseId = newPhase.id;
+                renderTimeline();
+            }
+            
+            // 初始化渲染
+            renderTimeline();
+            
+            // 获取时间线数据（用于表单提交）
+            function getTimelineData() {
+                return JSON.stringify(timelinePhases);
+            }
+            
+            // 将时间线数据添加到表单提交
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const timelineDataInput = document.createElement('input');
+                timelineDataInput.type = 'hidden';
+                timelineDataInput.name = 'background_story_timeline';
+                timelineDataInput.value = getTimelineData();
+                this.appendChild(timelineDataInput);
+            });
+        });
+    </script>
+</body>
+</html> 

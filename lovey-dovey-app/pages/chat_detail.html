@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天详情</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            padding-bottom: 83px; /* 为底部输入框留出空间 */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            margin: 0;
+        }
+        
+        .status-icon {
+            margin-left: 6px;
+        }
+        
+        .header {
+            background-color: #fff;
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-button {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #007aff;
+            font-size: 18px;
+        }
+        
+        .character-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .character-name {
+            font-weight: 600;
+            font-size: 17px;
+            color: #000;
+        }
+        
+        .affection-level {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #ff2d55;
+            margin-top: 2px;
+        }
+        
+        .affection-heart {
+            color: #ff2d55;
+            margin-right: 2px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .more-button {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #007aff;
+            font-size: 18px;
+        }
+        
+        .menu-button {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+        
+        .chat-container {
+            padding: 10px 15px;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message-time {
+            text-align: center;
+            font-size: 12px;
+            color: #8e8e93;
+            margin: 16px 0;
+            position: relative;
+        }
+        
+        .message-time::before,
+        .message-time::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 60px;
+            height: 1px;
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        .message-time::before {
+            left: 50%;
+            margin-left: 40px;
+        }
+        
+        .message-time::after {
+            right: 50%;
+            margin-right: 40px;
+        }
+        
+        .message-content {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.4;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 18px;
+            margin-right: 10px;
+            object-fit: cover;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .message-row {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 2px;
+        }
+        
+        .message.received .message-content {
+            background-color: white;
+            border: 1px solid rgba(0,0,0,0.05);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message.sent .message-content {
+            background: linear-gradient(135deg, #ff5b8d, #ff2d55);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message.sent .message-row {
+            justify-content: flex-end;
+        }
+        
+        .message.sent .message-avatar {
+            order: 1;
+            margin-right: 0;
+            margin-left: 10px;
+        }
+        
+        .message-status {
+            font-size: 11px;
+            color: #8e8e93;
+            text-align: right;
+            margin-top: 4px;
+        }
+        
+        .message-typing {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: white;
+            border-radius: 18px;
+            border: 1px solid rgba(0,0,0,0.05);
+            width: fit-content;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #8e8e93;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .input-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 10px 15px 30px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            z-index: 50;
+        }
+        
+        .input-action {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #8e8e93;
+            font-size: 18px;
+        }
+        
+        .input-field {
+            flex: 1;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            padding: 10px 15px;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .input-field:focus-within {
+            background-color: #e5e5ea;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
+        }
+        
+        .input-field input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background-color: transparent;
+            font-size: 15px;
+            color: #333;
+        }
+        
+        .input-emoji {
+            margin-left: 10px;
+            color: #8e8e93;
+            font-size: 18px;
+        }
+        
+        .send-button {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff5b8d, #ff2d55);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            box-shadow: 0 2px 6px rgba(255, 45, 85, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .send-button:active {
+            transform: scale(0.95);
+        }
+        
+        .message-image {
+            max-width: 200px;
+            border-radius: 12px;
+            margin-top: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        
+        .affection-up {
+            background: linear-gradient(135deg, rgba(255, 45, 85, 0.1), rgba(255, 45, 85, 0.05));
+            color: #ff2d55;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            text-align: center;
+            margin: 20px 0;
+            animation: fadeIn 0.5s;
+            box-shadow: 0 2px 6px rgba(255, 45, 85, 0.1);
+            border: 1px solid rgba(255, 45, 85, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 互动任务系统样式 */
+        .daily-tasks {
+            background-color: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 90px;
+            right: 16px;
+            z-index: 40;
+            width: 50px;
+            height: 50px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .daily-tasks.expanded {
+            width: calc(100% - 32px);
+            height: auto;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .daily-tasks-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        
+        .daily-tasks-title {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 15px;
+            color: #333;
+        }
+        
+        .daily-tasks-title i {
+            margin-right: 8px;
+            color: #ff2d55;
+        }
+        
+        .daily-tasks-progress {
+            margin-left: auto;
+            background: linear-gradient(135deg, #5ac8fa, #007aff);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-right: 10px;
+            box-shadow: 0 2px 4px rgba(0, 122, 255, 0.2);
+        }
+        
+        .daily-tasks-toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #8e8e93;
+            transition: transform 0.3s ease;
+        }
+        
+        .daily-tasks-content {
+            display: none;
+        }
+        
+        .daily-tasks.expanded .daily-tasks-content {
+            display: block;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: background-color 0.2s ease;
+        }
+        
+        .task-item:active {
+            background-color: #f5f7fa;
+        }
+        
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #e5e5ea;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            color: white;
+            font-size: 12px;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        
+        .task-item.completed .task-checkbox {
+            background: linear-gradient(135deg, #34c759, #30d158);
+            border-color: transparent;
+            box-shadow: 0 2px 4px rgba(52, 199, 89, 0.2);
+        }
+        
+        .task-details {
+            flex: 1;
+        }
+        
+        .task-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .task-desc {
+            font-size: 13px;
+            color: #8e8e93;
+        }
+        
+        .task-reward {
+            background: linear-gradient(135deg, #ff9500, #ff2d55);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-left: 8px;
+            box-shadow: 0 2px 4px rgba(255, 45, 85, 0.2);
+        }
+        
+        .daily-tasks-footer {
+            padding: 14px 16px;
+            background-color: #f9f9f9;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .daily-reward-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .daily-reward-item {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            background-color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .daily-reward-item i {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff9500, #ff2d55);
+            color: white;
+            font-size: 10px;
+        }
+        
+        .task-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #ff5b8d, #ff2d55);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .task-button:active {
+            transform: scale(0.95);
+        }
+        
+        .daily-tasks.expanded .task-button {
+            display: none;
+        }
+        
+        .task-count-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            background-color: #007aff;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 122, 255, 0.3);
+        }
+        
+        /* 情感波动反馈系统样式 */
+        .emotion-feedback-container {
+            background-color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 10px 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 60px; /* 调整为头部高度 + 一些间距 */
+            z-index: 30;
+        }
+        
+        .emotion-indicator {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .emotion-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .emotion-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #333;
+            flex: 1;
+        }
+        
+        .emotion-label {
+            font-weight: 500;
+            font-size: 14px;
+            color: #333;
+            text-align: right;
+        }
+        
+        .current-emotion {
+            font-weight: 600;
+            color: #ff2d55;
+        }
+        
+        .emotion-icons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .emotion-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .emotion-icon.active {
+            background: linear-gradient(135deg, #ff5b8d, #ff2d55);
+            color: white;
+            box-shadow: 0 2px 6px rgba(255, 45, 85, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .emotion-intensity-container {
+            margin-top: 4px;
+        }
+        
+        .emotion-intensity-meter {
+            width: 100%;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 8px;
+        }
+        
+        .intensity-bar {
+            height: 100%;
+            background: linear-gradient(to right, #ff5b8d, #ff2d55);
+            transition: width 0.3s ease;
+        }
+        
+        .intensity-label {
+            font-size: 12px;
+            color: #8e8e93;
+            margin-top: 6px;
+            text-align: right;
+        }
+        
+        /* 情感波动反馈系统的动画样式 */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .bounce-animation {
+            animation: bounce 0.5s ease;
+        }
+        
+        .emotion-joy-animation {
+            animation: pulse 0.5s ease;
+        }
+        
+        .emotion-sadness-animation {
+            animation: pulse 1s ease;
+        }
+        
+        .emotion-surprise-animation {
+            animation: shake 0.5s ease;
+        }
+        
+        .emotion-love-animation {
+            animation: pulse 0.3s ease infinite;
+            animation-iteration-count: 3;
+        }
+        
+        .emotion-anger-animation {
+            animation: shake 0.3s ease;
+        }
+        
+        /* 波浪动画 */
+        @keyframes wave {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部信息 -->
+    <div class="header">
+        <div class="header-left">
+            <div class="back-button">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+        </div>
+        <div class="character-info">
+            <div class="character-name">艾米丽</div>
+            <div class="affection-level">
+                <i class="fas fa-heart affection-heart"></i>
+                <i class="fas fa-heart affection-heart"></i>
+                <i class="fas fa-heart affection-heart"></i>
+                <i class="fas fa-heart-broken text-gray-300"></i>
+                <i class="fas fa-heart-broken text-gray-300"></i>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="more-button">
+                <i class="fas fa-ellipsis-h"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 情感波动反馈系统 -->
+    <div class="emotion-feedback-container">
+        <div class="emotion-indicator">
+            <div class="emotion-header">
+                <div class="emotion-title">情绪状态</div>
+                <div class="emotion-label">艾米丽现在感到 <span class="current-emotion">开心</span></div>
+            </div>
+            
+            <div class="emotion-icons">
+                <div class="emotion-icon joy active" data-emotion="joy">
+                    <i class="fas fa-smile"></i>
+                </div>
+                <div class="emotion-icon sadness" data-emotion="sadness">
+                    <i class="fas fa-sad-tear"></i>
+                </div>
+                <div class="emotion-icon surprise" data-emotion="surprise">
+                    <i class="fas fa-surprise"></i>
+                </div>
+                <div class="emotion-icon love" data-emotion="love">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="emotion-icon anger" data-emotion="anger">
+                    <i class="fas fa-angry"></i>
+                </div>
+            </div>
+            
+            <div class="emotion-intensity-container">
+                <div class="emotion-intensity-meter">
+                    <div class="intensity-bar" style="width: 65%"></div>
+                </div>
+                <div class="intensity-label">情绪强度: 65%</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 互动任务系统 -->
+    <div class="daily-tasks" id="dailyTasks">
+        <div class="task-button" id="taskButton">
+            <i class="fas fa-tasks"></i>
+            <div class="task-count-badge">3/5</div>
+        </div>
+        
+        <div class="daily-tasks-header" id="toggleTasks">
+            <div class="daily-tasks-title">
+                <i class="fas fa-tasks"></i>
+                <span>今日互动任务</span>
+            </div>
+            <div class="daily-tasks-progress">3/5</div>
+            <div class="daily-tasks-toggle">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        
+        <div class="daily-tasks-content" id="tasksContent">
+            <div class="task-item completed">
+                <div class="task-checkbox">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="task-details">
+                    <div class="task-name">早安问候</div>
+                    <div class="task-desc">向艾米丽说早安</div>
+                </div>
+                <div class="task-reward">+5 亲密度</div>
+            </div>
+            
+            <div class="task-item completed">
+                <div class="task-checkbox">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="task-details">
+                    <div class="task-name">分享心情</div>
+                    <div class="task-desc">与艾米丽分享你的心情</div>
+                </div>
+                <div class="task-reward">+10 亲密度</div>
+            </div>
+            
+            <div class="task-item completed">
+                <div class="task-checkbox">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="task-details">
+                    <div class="task-name">关心问候</div>
+                    <div class="task-desc">询问艾米丽的近况</div>
+                </div>
+                <div class="task-reward">+8 亲密度</div>
+            </div>
+            
+            <div class="task-item">
+                <div class="task-checkbox">
+                    <i class="far fa-circle"></i>
+                </div>
+                <div class="task-details">
+                    <div class="task-name">深入交流</div>
+                    <div class="task-desc">与艾米丽进行一次深度对话</div>
+                </div>
+                <div class="task-reward">+15 亲密度</div>
+            </div>
+            
+            <div class="task-item">
+                <div class="task-checkbox">
+                    <i class="far fa-circle"></i>
+                </div>
+                <div class="task-details">
+                    <div class="task-name">晚安道别</div>
+                    <div class="task-desc">向艾米丽说晚安</div>
+                </div>
+                <div class="task-reward">+5 亲密度</div>
+            </div>
+            
+            <div class="daily-tasks-footer">
+                <div class="daily-reward">
+                    <div class="daily-reward-title">完成全部任务奖励:</div>
+                    <div class="daily-reward-item">
+                        <i class="fas fa-gift"></i>
+                        <span>特殊对话场景解锁</span>
+                    </div>
+                    <div class="daily-reward-item">
+                        <i class="fas fa-star"></i>
+                        <span>+50 额外亲密度</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 聊天内容 -->
+    <div class="chat-container">
+        <div class="message-time">今天 14:30</div>
+        
+        <!-- 接收的消息 -->
+        <div class="message received">
+            <div class="message-row">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="message-avatar" alt="角色头像">
+                <div class="message-content">
+                    嗨！今天过得怎么样？我刚刚完成了一个新的蛋糕配方，是巧克力覆盆子口味的，看起来很美味！
+                </div>
+            </div>
+        </div>
+        
+        <!-- 发送的消息 -->
+        <div class="message sent">
+            <div class="message-row">
+                <div class="message-content">
+                    听起来很棒！我今天过得还不错，刚刚下班回家。你的蛋糕看起来是什么样的？
+                </div>
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="message-avatar" alt="用户头像">
+            </div>
+            <div class="message-status">已读 14:35</div>
+        </div>
+        
+        <!-- 接收的消息带图片 -->
+        <div class="message received">
+            <div class="message-row">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="message-avatar" alt="角色头像">
+                <div class="message-content">
+                    给你看看！这是我今天下午做的，上面撒了一些覆盆子和薄荷叶装饰。
+                    <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" class="message-image" alt="蛋糕图片">
+                </div>
+            </div>
+        </div>
+        
+        <!-- 好感度提升提示 -->
+        <div class="affection-up">
+            <i class="fas fa-heart mr-1"></i> 好感度 +5 | 当前等级：Lv.4
+        </div>
+        
+        <!-- 发送的消息 -->
+        <div class="message sent">
+            <div class="message-row">
+                <div class="message-content">
+                    哇！看起来太美味了！你真的很有烘焙天赋。我也想尝试做一次，你能分享配方吗？
+                </div>
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="message-avatar" alt="用户头像">
+            </div>
+            <div class="message-status">已读 14:42</div>
+        </div>
+        
+        <!-- 接收的消息 -->
+        <div class="message received">
+            <div class="message-row">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="message-avatar" alt="角色头像">
+                <div class="message-content">
+                    当然可以！我很高兴你喜欢。这个配方其实不难，主要材料有：
+                    - 200克黑巧克力
+                    - 150克无盐黄油
+                    - 200克细砂糖
+                    - 4个大鸡蛋
+                    - 120克普通面粉
+                    - 50克可可粉
+                    - 一小撮盐
+                    - 200克新鲜覆盆子
+                    
+                    你有所有这些材料吗？如果有，我可以告诉你详细的步骤。
+                </div>
+            </div>
+        </div>
+        
+        <!-- 发送的消息 -->
+        <div class="message sent">
+            <div class="message-row">
+                <div class="message-content">
+                    我想我需要去买一些覆盆子，其他的材料都有。周末我会尝试做一下，到时候再向你请教具体步骤！
+                </div>
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="message-avatar" alt="用户头像">
+            </div>
+            <div class="message-status">已读 14:45</div>
+        </div>
+        
+        <!-- 正在输入提示 -->
+        <div class="message received">
+            <div class="message-row">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="message-avatar" alt="角色头像">
+                <div class="message-typing">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部输入框 -->
+    <div class="input-container">
+        <div class="input-action">
+            <i class="fas fa-plus"></i>
+        </div>
+        <div class="input-field">
+            <input type="text" placeholder="输入消息...">
+            <div class="input-emoji">
+                <i class="far fa-smile"></i>
+            </div>
+        </div>
+        <div class="send-button">
+            <i class="fas fa-paper-plane"></i>
+        </div>
+    </div>
+    
+    <script>
+        // 任务系统展开/收起功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 任务系统展开/收起功能
+            const dailyTasks = document.getElementById('dailyTasks');
+            const taskButton = document.getElementById('taskButton');
+            const toggleTasks = document.getElementById('toggleTasks');
+            const tasksContent = document.getElementById('tasksContent');
+            
+            // 点击悬浮按钮展开任务面板
+            taskButton.addEventListener('click', function() {
+                dailyTasks.classList.add('expanded');
+                
+                // 触发振动反馈
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(20);
+                }
+            });
+            
+            // 点击关闭按钮收起任务面板
+            toggleTasks.addEventListener('click', function() {
+                dailyTasks.classList.remove('expanded');
+                
+                // 触发振动反馈
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(20);
+                }
+            });
+            
+            // 任务点击完成功能
+            const taskItems = document.querySelectorAll('.task-item:not(.completed)');
+            taskItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // 触发振动反馈
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate([30, 20, 30]);
+                    }
+                    
+                    // 切换完成状态
+                    this.classList.toggle('completed');
+                    
+                    // 更新复选框图标
+                    const checkbox = this.querySelector('.task-checkbox i');
+                    if (this.classList.contains('completed')) {
+                        checkbox.classList.remove('far', 'fa-circle');
+                        checkbox.classList.add('fas', 'fa-check');
+                        
+                        // 添加动画效果
+                        this.style.transition = 'background-color 0.3s ease';
+                        this.style.backgroundColor = '#f0fff4';
+                        setTimeout(() => {
+                            this.style.backgroundColor = '';
+                        }, 500);
+                        
+                        // 更新进度
+                        updateTaskProgress();
+                        
+                        // 显示亲密度增加提示
+                        const reward = this.querySelector('.task-reward').textContent;
+                        showAffectionIncrease(reward);
+                    } else {
+                        checkbox.classList.remove('fas', 'fa-check');
+                        checkbox.classList.add('far', 'fa-circle');
+                        
+                        // 更新进度
+                        updateTaskProgress();
+                    }
+                });
+            });
+            
+            // 更新任务进度
+            function updateTaskProgress() {
+                const completedTasks = document.querySelectorAll('.task-item.completed').length;
+                const totalTasks = document.querySelectorAll('.task-item').length;
+                const progressElement = document.querySelector('.daily-tasks-progress');
+                const badgeElement = document.querySelector('.task-count-badge');
+                
+                const progressText = completedTasks + '/' + totalTasks;
+                progressElement.textContent = progressText;
+                badgeElement.textContent = progressText;
+                
+                // 检查是否全部完成
+                if (completedTasks === totalTasks) {
+                    // 显示全部完成奖励
+                    showCompletionReward();
+                    
+                    // 更新任务按钮样式
+                    taskButton.style.background = 'linear-gradient(135deg, #34c759, #30d158)';
+                }
+            }
+            
+            // 显示亲密度增加提示
+            function showAffectionIncrease(reward) {
+                const chatContainer = document.querySelector('.chat-container');
+                const affectionMsg = document.createElement('div');
+                affectionMsg.className = 'affection-up';
+                affectionMsg.innerHTML = '<i class="fas fa-heart mr-1"></i> 亲密度 ' + reward;
+                
+                chatContainer.appendChild(affectionMsg);
+                
+                // 3秒后移除提示
+                setTimeout(() => {
+                    affectionMsg.style.transition = 'opacity 0.5s, transform 0.5s';
+                    affectionMsg.style.opacity = '0';
+                    affectionMsg.style.transform = 'translateY(10px)';
+                    setTimeout(() => {
+                        affectionMsg.remove();
+                    }, 500);
+                }, 3000);
+            }
+            
+            // 显示全部完成奖励
+            function showCompletionReward() {
+                const chatContainer = document.querySelector('.chat-container');
+                const rewardMsg = document.createElement('div');
+                rewardMsg.className = 'affection-up special-reward';
+                rewardMsg.style.background = 'linear-gradient(135deg, rgba(255, 149, 0, 0.1), rgba(255, 45, 85, 0.05))';
+                rewardMsg.style.borderColor = 'rgba(255, 149, 0, 0.2)';
+                rewardMsg.innerHTML = '<i class="fas fa-gift mr-1"></i> 恭喜！完成全部任务，获得特殊奖励！';
+                
+                chatContainer.appendChild(rewardMsg);
+                
+                // 触发振动反馈
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([50, 30, 50, 30, 50]);
+                }
+            }
+            
+            // 情感波动反馈系统
+            const emotionIcons = document.querySelectorAll('.emotion-icon');
+            const currentEmotionLabel = document.querySelector('.current-emotion');
+            const intensityBar = document.querySelector('.intensity-bar');
+            
+            // 情感类型及其对应的颜色和振动模式
+            const emotions = {
+                joy: {
+                    color: '#4cd964',
+                    gradient: 'linear-gradient(135deg, #34c759, #30d158)',
+                    label: '开心',
+                    vibration: [100, 50, 100],
+                    intensity: 65
+                },
+                sadness: {
+                    color: '#5ac8fa',
+                    gradient: 'linear-gradient(135deg, #5ac8fa, #0a84ff)',
+                    label: '伤心',
+                    vibration: [300, 100, 300],
+                    intensity: 40
+                },
+                surprise: {
+                    color: '#ffcc00',
+                    gradient: 'linear-gradient(135deg, #ffcc00, #ff9500)',
+                    label: '惊讶',
+                    vibration: [50, 50, 50, 50, 50],
+                    intensity: 80
+                },
+                love: {
+                    color: '#ff2d55',
+                    gradient: 'linear-gradient(135deg, #ff5b8d, #ff2d55)',
+                    label: '喜爱',
+                    vibration: [100, 30, 100, 30, 100],
+                    intensity: 90
+                },
+                anger: {
+                    color: '#ff3b30',
+                    gradient: 'linear-gradient(135deg, #ff453a, #ff3b30)',
+                    label: '生气',
+                    vibration: [50, 20, 50, 20, 50, 20, 50],
+                    intensity: 75
+                }
+            };
+            
+            // 切换情感状态
+            function changeEmotion(emotion) {
+                // 更新图标状态
+                emotionIcons.forEach(icon => {
+                    icon.classList.remove('active');
+                    if (icon.dataset.emotion === emotion) {
+                        icon.classList.add('active');
+                    }
+                });
+                
+                // 更新情感标签
+                currentEmotionLabel.textContent = emotions[emotion].label;
+                
+                // 更新强度条
+                intensityBar.style.width = emotions[emotion].intensity + '%';
+                intensityBar.style.background = emotions[emotion].gradient;
+                
+                // 更新强度标签
+                document.querySelector('.intensity-label').textContent = '情绪强度: ' + emotions[emotion].intensity + '%';
+                
+                // 触发振动反馈（如果设备支持）
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(emotions[emotion].vibration);
+                }
+                
+                // 触发物理反馈动画
+                triggerPhysicalFeedback(emotion);
+            }
+            
+            // 物理反馈动画
+            function triggerPhysicalFeedback(emotion) {
+                const container = document.querySelector('.emotion-feedback-container');
+                
+                // 添加弹跳动画
+                container.classList.add('bounce-animation');
+                
+                // 添加情感特定的动画类
+                container.classList.add(`emotion-${emotion}-animation`);
+                
+                // 移除动画类，以便下次触发
+                setTimeout(() => {
+                    container.classList.remove('bounce-animation');
+                    container.classList.remove(`emotion-${emotion}-animation`);
+                }, 1000);
+            }
+            
+            // 为情感图标添加点击事件
+            emotionIcons.forEach(icon => {
+                icon.addEventListener('click', function() {
+                    const emotion = this.dataset.emotion;
+                    changeEmotion(emotion);
+                });
+            });
+            
+            // 模拟AI情感变化（每30秒随机变化一次）
+            setInterval(() => {
+                const emotionKeys = Object.keys(emotions);
+                const randomEmotion = emotionKeys[Math.floor(Math.random() * emotionKeys.length)];
+                changeEmotion(randomEmotion);
+            }, 30000);
+            
+            // 模拟消息触发情感变化
+            const messageContainer = document.querySelector('.chat-container');
+            messageContainer.addEventListener('click', function() {
+                // 随机选择一种情感
+                const emotionKeys = Object.keys(emotions);
+                const randomEmotion = emotionKeys[Math.floor(Math.random() * emotionKeys.length)];
+                changeEmotion(randomEmotion);
+            });
+            
+            // 输入框焦点效果
+            const inputField = document.querySelector('.input-field input');
+            const sendButton = document.querySelector('.send-button');
+            
+            inputField.addEventListener('focus', function() {
+                this.parentElement.style.backgroundColor = '#e5e5ea';
+            });
+            
+            inputField.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.parentElement.style.backgroundColor = '#f0f0f0';
+                }
+            });
+            
+            // 发送消息功能
+            sendButton.addEventListener('click', function() {
+                if (inputField.value.trim() !== '') {
+                    sendMessage(inputField.value);
+                    inputField.value = '';
+                    
+                    // 触发振动反馈
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate([20, 10, 20]);
+                    }
+                }
+            });
+            
+            inputField.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && this.value.trim() !== '') {
+                    sendMessage(this.value);
+                    this.value = '';
+                    
+                    // 触发振动反馈
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate([20, 10, 20]);
+                    }
+                }
+            });
+            
+            // 发送消息函数
+            function sendMessage(text) {
+                const chatContainer = document.querySelector('.chat-container');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message sent';
+                
+                const now = new Date();
+                let hours = now.getHours();
+                let minutes = now.getMinutes();
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                
+                messageDiv.innerHTML = `
+                    <div class="message-row">
+                        <div class="message-content">
+                            ${text}
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="message-avatar" alt="用户头像">
+                    </div>
+                    <div class="message-status">已发送 ${hours}:${minutes}</div>
+                `;
+                
+                chatContainer.appendChild(messageDiv);
+                
+                // 滚动到底部
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                // 模拟回复
+                setTimeout(() => {
+                    // 显示正在输入
+                    const typingDiv = document.createElement('div');
+                    typingDiv.className = 'message received';
+                    typingDiv.innerHTML = `
+                        <div class="message-row">
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="message-avatar" alt="角色头像">
+                            <div class="message-typing">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    chatContainer.appendChild(typingDiv);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    
+                    // 2-4秒后显示回复
+                    const replyTime = 2000 + Math.random() * 2000;
+                    setTimeout(() => {
+                        typingDiv.remove();
+                        
+                        // 随机回复内容
+                        const replies = [
+                            "我明白你的感受，这确实很有趣！",
+                            "谢谢你和我分享这些，我很开心能听到你的想法。",
+                            "这真的很棒！我们可以多聊聊这个话题吗？",
+                            "我喜欢你的想法，让我思考了很多。",
+                            "这让我想起了一些有趣的事情，下次我们可以一起讨论。"
+                        ];
+                        
+                        const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                        
+                        const replyDiv = document.createElement('div');
+                        replyDiv.className = 'message received';
+                        replyDiv.innerHTML = `
+                            <div class="message-row">
+                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="message-avatar" alt="角色头像">
+                                <div class="message-content">
+                                    ${randomReply}
+                                </div>
+                            </div>
+                        `;
+                        
+                        chatContainer.appendChild(replyDiv);
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                        
+                        // 随机触发情感变化
+                        const emotionKeys = Object.keys(emotions);
+                        const randomEmotion = emotionKeys[Math.floor(Math.random() * emotionKeys.length)];
+                        changeEmotion(randomEmotion);
+                        
+                        // 随机触发亲密度增加
+                        if (Math.random() > 0.5) {
+                            const points = Math.floor(Math.random() * 5) + 1;
+                            setTimeout(() => {
+                                showAffectionIncrease(`+${points}`);
+                            }, 1000);
+                        }
+                    }, replyTime);
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html> 

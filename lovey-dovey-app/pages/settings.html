@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            padding-bottom: 83px; /* 为底部导航栏留出空间 */
+        }
+        
+        .header {
+            background-color: #fff;
+            padding: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-button {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+        
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin: 15px;
+        }
+        
+        .section-header {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: bold;
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .menu-list {
+            padding: 5px 0;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .menu-item:not(:last-child) {
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .menu-text {
+            flex: 1;
+            font-size: 16px;
+        }
+        
+        .menu-value {
+            color: #999;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .menu-arrow {
+            color: #ccc;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #ff2d55;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+        
+        .logout-button {
+            background-color: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px;
+            text-align: center;
+            color: #ff2d55;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .version-info {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin: 20px 0;
+        }
+        
+        /* 底部导航栏样式 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 83px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 20px; /* 为iPhone底部安全区域留出空间 */
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8e8e93;
+        }
+        
+        .nav-item.active {
+            color: #ff2d55;
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-text {
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <div class="header">
+        <div class="back-button">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="header-title">设置</div>
+        <div style="width: 36px;"></div>
+    </div>
+    
+    <!-- 账号设置 -->
+    <div class="section">
+        <div class="section-header">账号设置</div>
+        <div class="menu-list">
+            <div class="menu-item">
+                <div class="menu-text">个人资料</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">修改密码</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">绑定手机</div>
+                <div class="menu-value">138****5678</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">绑定邮箱</div>
+                <div class="menu-value">exa****@example.com</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 隐私设置 -->
+    <div class="section">
+        <div class="section-header">隐私设置</div>
+        <div class="menu-list">
+            <div class="menu-item">
+                <div class="menu-text">隐私政策</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">允许陌生人查看我的创作</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">允许推送通知</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">数据收集与使用</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 通知设置 -->
+    <div class="section">
+        <div class="section-header">通知设置</div>
+        <div class="menu-list">
+            <div class="menu-item">
+                <div class="menu-text">聊天消息通知</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">社区互动通知</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">系统通知</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">活动与优惠通知</div>
+                <label class="toggle-switch">
+                    <input type="checkbox">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 通用设置 -->
+    <div class="section">
+        <div class="section-header">通用设置</div>
+        <div class="menu-list">
+            <div class="menu-item">
+                <div class="menu-text">语言</div>
+                <div class="menu-value">简体中文</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">字体大小</div>
+                <div class="menu-value">标准</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">深色模式</div>
+                <label class="toggle-switch">
+                    <input type="checkbox">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">清除缓存</div>
+                <div class="menu-value">56.2MB</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 帮助与支持 -->
+    <div class="section">
+        <div class="section-header">帮助与支持</div>
+        <div class="menu-list">
+            <div class="menu-item">
+                <div class="menu-text">帮助中心</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">意见反馈</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">关于我们</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-text">检查更新</div>
+                <div class="menu-value">已是最新版本</div>
+                <div class="menu-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 退出登录按钮 -->
+    <div class="logout-button">
+        退出登录
+    </div>
+    
+    <!-- 版本信息 -->
+    <div class="version-info">
+        Lovey Dovey v1.0.0
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-user-friends"></i></div>
+            <div class="nav-text">角色</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-comment-alt"></i></div>
+            <div class="nav-text">聊天</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-plus-circle"></i></div>
+            <div class="nav-text">创作</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-users"></i></div>
+            <div class="nav-text">社区</div>
+        </div>
+        <div class="nav-item active">
+            <div class="nav-icon"><i class="fas fa-user"></i></div>
+            <div class="nav-text">我的</div>
+        </div>
+    </div>
+</body>
+</html> 

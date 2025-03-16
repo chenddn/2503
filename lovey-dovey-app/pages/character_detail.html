@@ -1,0 +1,2756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角色详情</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 添加Three.js库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- 添加GSAP动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <!-- 添加Lottie动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.9.6/lottie.min.js"></script>
+    <!-- 添加粒子效果库 -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #ff2d55;
+            --primary-light: #ff9eaa;
+            --primary-dark: #cc0029;
+            --secondary-color: #5ac8fa;
+            --text-color: #333;
+            --bg-color: #f9f9f9;
+            --card-color: #ffffff;
+            --transition-fast: 0.2s;
+            --transition-normal: 0.3s;
+            --transition-slow: 0.5s;
+            --easing-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --easing-smooth: cubic-bezier(0.65, 0, 0.35, 1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: color var(--transition-normal), background-color var(--transition-normal);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 100px; /* 为底部导航栏留出空间 */
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,0,0,0.3);
+        }
+        
+        /* 角色头部区域 - 3D视角 */
+        .header {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+        
+        #character-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        #particles-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+        
+        .header-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-slow) var(--easing-smooth);
+            z-index: 1;
+        }
+        
+        .header-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));
+            z-index: 3;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 10;
+            cursor: pointer;
+            transition: all var(--transition-fast) var(--easing-bounce);
+        }
+        
+        .back-button:hover, .back-button:active {
+            transform: scale(1.1);
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .character-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            color: white;
+            z-index: 5;
+            transform: translateZ(0);
+        }
+        
+        .character-name {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #ffffff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        
+        .character-short-desc {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .character-stats {
+            display: flex;
+            font-size: 14px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .action-buttons {
+            position: absolute;
+            bottom: -25px;
+            right: 20px;
+            display: flex;
+            z-index: 10;
+        }
+        
+        .action-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all var(--transition-normal) var(--easing-bounce);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+        }
+        
+        .action-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .action-button:hover:before {
+            opacity: 1;
+        }
+        
+        .action-button.primary {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 45, 85, 0.3);
+        }
+        
+        .action-button.primary:hover {
+            background-color: var(--primary-dark);
+            box-shadow: 0 8px 20px rgba(255, 45, 85, 0.4);
+        }
+        
+        /* 聊天按钮样式 */
+        .chat-button {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 5px 20px rgba(255, 45, 85, 0.4);
+            cursor: pointer;
+            transition: all 0.3s var(--easing-bounce);
+            z-index: 998;
+        }
+        
+        .chat-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(255, 45, 85, 0.5);
+        }
+        
+        .chat-button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            opacity: 0.6;
+            z-index: -1;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 45, 85, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 45, 85, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 45, 85, 0); }
+        }
+        
+        .chat-button:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 25px rgba(255, 45, 85, 0.5);
+        }
+        
+        .chat-button i {
+            font-size: 24px;
+        }
+        
+        /* 内容区域样式增强 */
+        .content-container {
+            position: relative;
+            z-index: 5;
+            padding: 0 15px;
+        }
+        
+        .section {
+            background-color: var(--card-color);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-normal) var(--easing-smooth);
+            transform: translateZ(0);
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--primary-light));
+            border-radius: 5px 0 0 5px;
+            opacity: 0.7;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 45, 85, 0.2);
+        }
+        
+        /* 背景故事卡片样式 */
+        .story-cards-container {
+            position: relative;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: visible;
+            padding: 10px 0 20px;
+            margin: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .story-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 0;
+        }
+        
+        .story-card {
+            width: 100%;
+            height: auto;
+            min-height: 150px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-right: 0;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all var(--transition-normal) var(--easing-bounce);
+            white-space: normal;
+            transform: translateZ(0);
+        }
+        
+        .story-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+            opacity: 0.7;
+        }
+        
+        .story-card:hover, .story-card:active {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 添加一个折叠/展开功能，默认只显示标题和一部分内容 */
+        .story-card-content {
+            max-height: 60px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            flex: 1;
+            margin-bottom: 20px;
+        }
+        
+        .story-card.expanded .story-card-content {
+            max-height: 300px;
+        }
+        
+        /* 添加一个展开指示器 */
+        .story-card:after {
+            content: '\f078';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+        
+        .story-card.expanded:after {
+            transform: rotate(180deg);
+        }
+        
+        .story-card-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .story-card-footer {
+            font-size: 12px;
+            color: #999;
+            margin-top: auto;
+        }
+        
+        .story-card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .story-card:hover .story-card-bg {
+            opacity: 0.15;
+        }
+        
+        /* 性格特点样式增强 */
+        .personality-container {
+            position: relative;
+            margin-top: 20px;
+        }
+        
+        .personality-spectrum {
+            position: relative;
+            height: 100px;
+            background: linear-gradient(to right, rgba(255,255,255,0.5), rgba(255,255,255,0.8));
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .spectrum-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, #f5f7fa, #c3cfe2);
+            opacity: 0.5;
+        }
+        
+        .spectrum-points {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 20px;
+            z-index: 2;
+        }
+        
+        .spectrum-point {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            cursor: pointer;
+            transition: all var(--transition-normal) var(--easing-bounce);
+        }
+        
+        .spectrum-point:hover, .spectrum-point.active {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .spectrum-point.active:after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 15px;
+            height: 15px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        .spectrum-line {
+            position: absolute;
+            top: 50%;
+            left: 40px;
+            right: 40px;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.1);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: rgba(255, 45, 85, 0.1);
+            border-radius: 20px;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-weight: 500;
+            transition: all var(--transition-normal) var(--easing-bounce);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tag:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 45, 85, 0.2), rgba(255, 45, 85, 0));
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+        }
+        
+        .tag:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 45, 85, 0.2);
+        }
+        
+        .tag:hover:before {
+            opacity: 1;
+        }
+        
+        .tag.highlighted {
+            background-color: var(--primary-color);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        /* 对话风格预览样式 */
+        .dialogue-preview {
+            position: relative;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .dialogue-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjA1Ij48cGF0aCBkPSJNMzAgMGMxNi41NjkgMCAzMCAxMy40MzEgMzAgMzAgMCAxNi41NjktMTMuNDMxIDMwLTMwIDMwQzEzLjQzMSA2MCAwIDQ2LjU2OSAwIDMwIDAgMTMuNDMxIDEzLjQzMSAwIDMwIDB6bTAgNWMtMTMuODA3IDAtMjUgMTEuMTkzLTI1IDI1czExLjE5MyAyNSAyNSAyNSAyNS0xMS4xOTMgMjUtMjVTNDMuODA3IDUgMzAgNXoiLz48L2c+PC9nPjwvc3ZnPg==');
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .dialogue-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .dialogue-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dialogue-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+        
+        .dialogue-status {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .dialogue-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .message-container {
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-bottom: 5px;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all var(--transition-normal) var(--easing-bounce);
+        }
+        
+        .message:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message.user {
+            background-color: #e9e9eb;
+            color: #333;
+            border-radius: 18px 18px 4px 18px;
+            margin-left: auto;
+        }
+        
+        .message.character {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border-radius: 18px 18px 18px 4px;
+        }
+        
+        .message-time {
+            font-size: 10px;
+            color: #999;
+            margin-top: 2px;
+            text-align: right;
+        }
+        
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            background-color: rgba(255, 45, 85, 0.1);
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            margin: 0 2px;
+            opacity: 0.6;
+        }
+        
+        .typing-dot:nth-child(1) {
+            animation: typingAnimation 1.5s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation: typingAnimation 1.5s infinite ease-in-out 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation: typingAnimation 1.5s infinite ease-in-out 0.4s;
+        }
+        
+        @keyframes typingAnimation {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
+        }
+        
+        .dialogue-options {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .dialogue-option {
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 10px 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all var(--transition-normal) var(--easing-bounce);
+        }
+        
+        .dialogue-option:hover {
+            background-color: rgba(255, 45, 85, 0.1);
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .voice-sample {
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-normal) var(--easing-bounce);
+        }
+        
+        .voice-sample:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .voice-play {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            margin-right: 15px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 45, 85, 0.3);
+            transition: all var(--transition-normal) var(--easing-bounce);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .voice-play:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(255, 45, 85, 0.4);
+        }
+        
+        .voice-play:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+        }
+        
+        .voice-play:hover:before {
+            opacity: 1;
+        }
+        
+        .voice-waveform {
+            flex: 1;
+            height: 40px;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSI0MHB4IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFRyYW5zZm9ybT0icm90YXRlKDkwKSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZjJkNTUiIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmOWVhYSIgLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxwYXRoIGQ9Ik0wLDIwIFEyLDEwLDQsMTUgUTYsMjAsOCwxMCBRMTAsMCwxMiw1IFExNCwxMCwxNiwyMCBRMTgsMzAsMjAsMjUgUTIyLDIwLDI0LDI1IFEyNiwzMCwyOCwyMCBRMzAsMTAsMzIsMTUgUTM0LDIwLDM2LDEwIFEzOCwwLDQwLDUgUTQyLDEwLDQ0LDIwIFE0NiwzMCw0OCwyNSBRNTAsMjAsNTIsMjUgUTU0LDMwLDU2LDIwIFE1OCwxMCw2MCwxNSBRNjIsMjAsNjQsMTAgUTY2LDAsNjgsNSBRNzAsMTAsNzIsMjAgUTc0LDMwLDc2LDI1IFE3OCwyMCw4MCwyNSBRODIsMzAsODQsMjAgUTg2LDEwLDg4LDE1IFE9MCwyMCw5MiwxMCBROTQsMCw5Niw1IFE5OCwxMCwxMDAsMjAgTDEwMCw0MCBMMCw0MCBaIiBmaWxsPSJ1cmwoI2dyYWQpIiBvcGFjaXR5PSIwLjQiLz4KPC9zdmc+');
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .voice-waveform:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: width 0.1s linear;
+        }
+        
+        .voice-waveform.playing:after {
+            width: 100%;
+            transition: width 15s linear;
+        }
+        
+        .voice-time {
+            margin-left: 15px;
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        /* 好感度系统可视化 */
+        .affinity-system {
+            position: relative;
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+        
+        .affinity-meter {
+            position: relative;
+            height: 60px;
+            background: linear-gradient(to right, rgba(255,255,255,0.5), rgba(255,255,255,0.8));
+            border-radius: 15px;
+            margin-bottom: 30px;
+            overflow: visible;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .affinity-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, #f5f7fa, #c3cfe2);
+            opacity: 0.5;
+            z-index: 1;
+            border-radius: 15px;
+        }
+        
+        .affinity-progress-container {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            z-index: 2;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .affinity-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 65%;
+            background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+            border-radius: 6px;
+            transition: width 1s var(--easing-smooth);
+            z-index: 2;
+            box-shadow: 0 0 10px rgba(255, 45, 85, 0.3);
+        }
+        
+        .affinity-progress:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 10px;
+            height: 100%;
+            background-color: white;
+            opacity: 0.3;
+            animation: pulse-horizontal 2s infinite;
+            z-index: 2;
+        }
+        
+        @keyframes pulse-horizontal {
+            0% { transform: translateX(0); opacity: 0.3; }
+            50% { transform: translateX(-20px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 0.3; }
+        }
+        
+        .affinity-level {
+            position: absolute;
+            top: -20px;
+            left: 65%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(255, 45, 85, 0.3);
+            z-index: 3;
+            white-space: nowrap;
+        }
+        
+        .affinity-level:after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--primary-light) transparent transparent transparent;
+        }
+        
+        .affinity-milestones {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            padding: 0 10px;
+        }
+        
+        .affinity-milestone {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            color: #666;
+            z-index: 1;
+        }
+        
+        .affinity-milestone.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 45, 85, 0.5);
+        }
+        
+        .affinity-milestone:before {
+            content: '';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: #999;
+            white-space: nowrap;
+        }
+        
+        .affinity-milestone:nth-child(1):before {
+            content: '初识';
+        }
+        
+        .affinity-milestone:nth-child(2):before {
+            content: '熟悉';
+        }
+        
+        .affinity-milestone:nth-child(3):before {
+            content: '信任';
+        }
+        
+        .affinity-milestone:nth-child(4):before {
+            content: '亲密';
+        }
+        
+        .affinity-milestone:nth-child(5):before {
+            content: '挚友';
+        }
+        
+        .affinity-rewards {
+            margin-top: 30px;
+        }
+        
+        .affinity-reward-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .affinity-rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .affinity-reward-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            transition: all var(--transition-normal) var(--easing-bounce);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .affinity-reward-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .affinity-reward-card.locked {
+            opacity: 0.7;
+        }
+        
+        .affinity-reward-card.locked:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            z-index: 1;
+        }
+        
+        .affinity-reward-card.locked:after {
+            content: '\f023';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: rgba(0, 0, 0, 0.3);
+            z-index: 2;
+        }
+        
+        .affinity-reward-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255, 45, 85, 0.1), rgba(255, 45, 85, 0.3));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            color: var(--primary-color);
+            flex-shrink: 0;
+        }
+        
+        .affinity-reward-details {
+            flex: 1;
+        }
+        
+        .affinity-reward-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+            color: #333;
+        }
+        
+        .affinity-reward-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .affinity-reward-level {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 10px;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        /* 底部导航栏样式 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 83px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 20px; /* 为iPhone底部安全区域留出空间 */
+            z-index: 999;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8e8e93;
+        }
+        
+        .nav-item.active {
+            color: #ff2d55;
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-text {
+            font-size: 10px;
+        }
+        
+        /* 成就系统样式 */
+        .achievement-count {
+            margin-left: auto;
+            font-size: 14px;
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+        
+        .achievement-container {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .achievement-tabs {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .achievement-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            font-size: 14px;
+            color: #666;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .achievement-tab.active {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+        
+        .achievement-tab.active:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background-color: #ff6b6b;
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .achievements-grid {
+            padding: 16px;
+        }
+        
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+            border: 1px solid #f0f0f0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .achievement-item:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #ddd;
+        }
+        
+        .achievement-item.unlocked:before {
+            background-color: #4cd964;
+        }
+        
+        .achievement-item.locked:before {
+            background-color: #8e8e93;
+        }
+        
+        .achievement-item.special:before {
+            background-color: #ffcc00;
+        }
+        
+        .achievement-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .achievement-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f5f7fa, #e5e5ea);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            color: #8e8e93;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .achievement-item.unlocked .achievement-icon {
+            background: linear-gradient(135deg, #a5f7c5, #4cd964);
+            color: white;
+        }
+        
+        .achievement-item.special .achievement-icon {
+            background: linear-gradient(135deg, #ffeaa0, #ffcc00);
+            color: #8a6d00;
+        }
+        
+        .achievement-details {
+            flex: 1;
+        }
+        
+        .achievement-name {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 2px;
+            color: #333;
+        }
+        
+        .achievement-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 2px;
+        }
+        
+        .achievement-date, .achievement-progress {
+            font-size: 12px;
+            color: #8e8e93;
+        }
+        
+        .achievement-reward {
+            background-color: #fff3f3;
+            color: #ff6b6b;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+        
+        .achievement-item.locked .achievement-reward {
+            background-color: #f5f5f5;
+            color: #8e8e93;
+        }
+        
+        .achievement-footer {
+            padding: 12px 16px;
+            border-top: 1px solid #f0f0f0;
+            text-align: center;
+        }
+        
+        .view-all-btn {
+            background-color: #f5f5f5;
+            color: #666;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .view-all-btn:hover {
+            background-color: #e5e5ea;
+        }
+
+        /* 交互式故事时间线样式 */
+        .character-timeline {
+            position: relative;
+            width: 100%;
+            padding: 20px 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        .timeline-event {
+            display: flex;
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .timeline-event.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .timeline-icon-container {
+            position: sticky;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            align-self: flex-start;
+            z-index: 10;
+        }
+        
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid;
+            margin-bottom: 10px;
+        }
+        
+        .timeline-icon.childhood {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+        
+        .timeline-icon.adolescence {
+            border-color: #f59e0b;
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+        
+        .timeline-icon.adulthood {
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+        
+        .timeline-icon.present {
+            border-color: #8b5cf6;
+            background-color: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+        
+        .timeline-connector {
+            width: 2px;
+            height: 80px;
+            transition: height 0.3s ease;
+        }
+        
+        .timeline-connector.childhood {
+            background-color: #3b82f6;
+        }
+        
+        .timeline-connector.adolescence {
+            background-color: #f59e0b;
+        }
+        
+        .timeline-connector.adulthood {
+            background-color: #10b981;
+        }
+        
+        .timeline-connector.present {
+            background-color: #8b5cf6;
+        }
+        
+        .timeline-content {
+            flex: 1;
+            margin-left: 20px;
+        }
+        
+        .timeline-card {
+            background-color: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .timeline-card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+        
+        .timeline-card-header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .timeline-card-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .timeline-card-date {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .timeline-card-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        
+        .timeline-card.expanded .timeline-card-body {
+            max-height: 500px;
+        }
+        
+        .timeline-card-content {
+            padding: 0 15px 15px;
+        }
+        
+        .timeline-card-text {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            color: #4b5563;
+        }
+        
+        .timeline-card-traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .timeline-card-trait {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background-color: #f3f4f6;
+            border-radius: 9999px;
+            font-size: 12px;
+        }
+        
+        .timeline-card.childhood {
+            border-top: 3px solid #3b82f6;
+        }
+        
+        .timeline-card.adolescence {
+            border-top: 3px solid #f59e0b;
+        }
+        
+        .timeline-card.adulthood {
+            border-top: 3px solid #10b981;
+        }
+        
+        .timeline-card.present {
+            border-top: 3px solid #8b5cf6;
+        }
+        
+        .timeline-card-trait.childhood {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+        
+        .timeline-card-trait.adolescence {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+        
+        .timeline-card-trait.adulthood {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+        
+        .timeline-card-trait.present {
+            background-color: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+        
+        .timeline-card-chevron {
+            transition: transform 0.3s ease;
+        }
+        
+        .timeline-card.expanded .timeline-card-chevron {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <!-- 角色头部信息 -->
+    <div class="header">
+        <div id="character-canvas"></div>
+        <div id="particles-js"></div>
+        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="header-image" alt="角色图片">
+        <div class="header-overlay"></div>
+        <div class="back-button">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="character-info">
+            <div class="character-name">艾米丽</div>
+            <div class="character-short-desc">温柔体贴的邻家女孩</div>
+            <div class="character-stats">
+                <div class="mr-4"><i class="fas fa-heart mr-1"></i> 12.5k 喜欢</div>
+                <div><i class="fas fa-comment mr-1"></i> 3.2k 评论</div>
+            </div>
+        </div>
+        <div class="action-buttons">
+            <div class="action-button">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="action-button">
+                <i class="fas fa-share-alt"></i>
+            </div>
+            <div class="action-button primary">
+                <i class="fas fa-comment-alt"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="content-container">
+    <!-- 角色背景故事 -->
+    <div class="section mt-8">
+        <div class="section-title">
+            <div class="section-icon"><i class="fas fa-book"></i></div>
+            <span>背景故事</span>
+        </div>
+        
+        <div class="text-sm text-gray-500 mb-3">点击卡片可展开查看更多内容</div>
+            
+        <div class="story-cards-container">
+            <div class="story-cards">
+                <div class="story-card" data-period="童年">
+                    <div class="story-card-bg" style="background-image: url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60');"></div>
+                    <div class="story-card-title">童年时光</div>
+                    <div class="story-card-content">
+                        艾米丽出生于一个小镇，从小就在父母经营的面包店里长大。她的童年充满了面粉和糖霜的香气，以及顾客们的笑声。每天放学后，她都会帮父母整理面包店，学习简单的烘焙技巧。
+                    </div>
+                    <div class="story-card-footer">年龄: 5-12岁</div>
+                </div>
+                
+                <div class="story-card" data-period="青少年">
+                    <div class="story-card-bg" style="background-image: url('https://images.unsplash.com/photo-1551966775-a4ddc8df052b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60');"></div>
+                    <div class="story-card-title">青春岁月</div>
+                    <div class="story-card-content">
+                        进入高中后，艾米丽发现了自己对文学的热爱。她加入了学校的读书俱乐部，开始尝试写作短篇故事。同时，她在家里的烘焙技巧也越来越娴熟，经常为同学们带去自制的点心。
+                    </div>
+                    <div class="story-card-footer">年龄: 13-18岁</div>
+                </div>
+                
+                <div class="story-card" data-period="大学">
+                    <div class="story-card-bg" style="background-image: url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60');"></div>
+                    <div class="story-card-title">大学生活</div>
+                    <div class="story-card-content">
+                        艾米丽选择了文学专业，大学期间她阅读了大量的经典文学作品，并参与了校园文学杂志的编辑工作。周末时，她会在宿舍的公共厨房里烘焙点心，这让她在同学中非常受欢迎。
+                    </div>
+                    <div class="story-card-footer">年龄: 19-22岁</div>
+                </div>
+                
+                <div class="story-card" data-period="现在">
+                    <div class="story-card-bg" style="background-image: url('https://images.unsplash.com/photo-1507209281643-9e2f4d8c4bdf?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60');"></div>
+                    <div class="story-card-title">当前生活</div>
+                    <div class="story-card-content">
+                        大学毕业后，艾米丽搬到了大城市，在一家知名出版社工作。她租了一个小公寓，周末时会在自己的厨房里尝试各种烘焙食谱。她喜欢在城市公园里阅读，也经常参加各种文学活动。
+                    </div>
+                    <div class="story-card-footer">年龄: 23岁至今</div>
+                </div>
+            </div>
+        </div>
+        
+        <p class="text-gray-700 leading-relaxed mt-4">
+            艾米丽温柔、善良，总是能够察觉到别人的情绪变化，给予适当的关心和支持。她相信每个人都有自己的故事，值得被倾听和理解。
+        </p>
+    </div>
+
+    <!-- 性格特点 -->
+    <div class="section">
+        <div class="section-title">
+            <div class="section-icon"><i class="fas fa-user"></i></div>
+            <span>性格特点</span>
+        </div>
+        
+        <div class="personality-container">
+            <div class="personality-spectrum">
+                <div class="spectrum-bg"></div>
+                <div class="spectrum-line"></div>
+                <div class="spectrum-points">
+                    <div class="spectrum-point" data-trait="温柔" data-color="#ff9eaa">
+                        <i class="fas fa-heart" style="color: #ff2d55;"></i>
+                    </div>
+                    <div class="spectrum-point" data-trait="创意" data-color="#5ac8fa">
+                        <i class="fas fa-lightbulb" style="color: #5ac8fa;"></i>
+                    </div>
+                    <div class="spectrum-point" data-trait="耐心" data-color="#4cd964">
+                        <i class="fas fa-clock" style="color: #4cd964;"></i>
+                    </div>
+                    <div class="spectrum-point" data-trait="细心" data-color="#ffcc00">
+                        <i class="fas fa-eye" style="color: #ffcc00;"></i>
+                    </div>
+                    <div class="spectrum-point" data-trait="乐观" data-color="#ff9500">
+                        <i class="fas fa-smile" style="color: #ff9500;"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tag-cloud">
+                <div class="tag" data-trait="温柔">温柔</div>
+                <div class="tag" data-trait="体贴">体贴</div>
+                <div class="tag" data-trait="善良">善良</div>
+                <div class="tag" data-trait="耐心">耐心</div>
+                <div class="tag" data-trait="细心">细心</div>
+                <div class="tag" data-trait="创意">创意</div>
+                <div class="tag" data-trait="乐观">乐观</div>
+                <div class="tag" data-trait="喜欢阅读">喜欢阅读</div>
+                <div class="tag" data-trait="烘焙爱好者">烘焙爱好者</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 角色互动成就系统 -->
+    <div class="section mt-6">
+        <div class="section-title">
+            <div class="section-icon"><i class="fas fa-trophy"></i></div>
+            <span>互动成就</span>
+            <div class="achievement-count">12/30</div>
+        </div>
+        
+        <div class="achievement-container">
+            <div class="achievement-tabs">
+                <div class="achievement-tab active">已解锁</div>
+                <div class="achievement-tab">未解锁</div>
+                <div class="achievement-tab">稀有成就</div>
+            </div>
+            
+            <div class="achievements-grid">
+                <div class="achievement-item unlocked">
+                    <div class="achievement-icon">
+                        <i class="fas fa-mug-hot"></i>
+                    </div>
+                    <div class="achievement-details">
+                        <div class="achievement-name">初次见面</div>
+                        <div class="achievement-desc">与艾米丽完成第一次对话</div>
+                        <div class="achievement-date">获得于: 2023-06-15</div>
+                    </div>
+                    <div class="achievement-reward">+10 亲密度</div>
+                </div>
+                
+                <div class="achievement-item unlocked">
+                    <div class="achievement-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="achievement-details">
+                        <div class="achievement-name">文学爱好者</div>
+                        <div class="achievement-desc">与艾米丽讨论了她喜欢的书籍</div>
+                        <div class="achievement-date">获得于: 2023-06-18</div>
+                    </div>
+                    <div class="achievement-reward">+15 亲密度</div>
+                </div>
+                
+                <div class="achievement-item unlocked">
+                    <div class="achievement-icon">
+                        <i class="fas fa-birthday-cake"></i>
+                    </div>
+                    <div class="achievement-details">
+                        <div class="achievement-name">烘焙达人</div>
+                        <div class="achievement-desc">了解艾米丽的烘焙技巧</div>
+                        <div class="achievement-date">获得于: 2023-06-22</div>
+                    </div>
+                    <div class="achievement-reward">+20 亲密度</div>
+                </div>
+                
+                <div class="achievement-item locked">
+                    <div class="achievement-icon">
+                        <i class="fas fa-question"></i>
+                    </div>
+                    <div class="achievement-details">
+                        <div class="achievement-name">神秘成就</div>
+                        <div class="achievement-desc">继续互动以解锁更多成就</div>
+                    </div>
+                    <div class="achievement-reward">??? 亲密度</div>
+                </div>
+                
+                <div class="achievement-item special">
+                    <div class="achievement-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="achievement-details">
+                        <div class="achievement-name">特别的回忆</div>
+                        <div class="achievement-desc">在特定场景下触发特殊对话</div>
+                        <div class="achievement-progress">进度: 2/5</div>
+                    </div>
+                    <div class="achievement-reward">+50 亲密度</div>
+                </div>
+            </div>
+            
+            <div class="achievement-footer">
+                <button class="view-all-btn">
+                    <i class="fas fa-list mr-1"></i> 查看全部成就
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 对话风格 -->
+    <div class="section">
+        <div class="section-title">
+            <div class="section-icon"><i class="fas fa-comment"></i></div>
+            <span>对话风格</span>
+        </div>
+        <p class="text-gray-700 leading-relaxed">
+            艾米丽说话温柔细腻，常常使用温暖的词汇和鼓励的语气。她善于倾听，会记住你说过的事情，并在之后的对话中自然地提起。她喜欢分享生活中的小确幸，也会给予实用的建议和支持。
+        </p>
+            
+            <div class="dialogue-preview">
+                <div class="dialogue-bg"></div>
+                <div class="dialogue-header">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" class="dialogue-avatar" alt="艾米丽头像">
+                    <div>
+                        <div class="dialogue-name">艾米丽</div>
+                        <div class="dialogue-status">在线</div>
+                    </div>
+                </div>
+                
+                <div class="dialogue-content">
+                    <div class="message-container">
+                        <div class="message user">
+                            嗨，艾米丽！今天过得怎么样？
+                        </div>
+                        <div class="message-time">12:30</div>
+                    </div>
+                    
+                    <div class="message-container">
+                        <div class="message character">
+                            你好啊！今天过得很充实呢，早上在出版社完成了一本新书的校对，午休时间还去了附近的公园散步。阳光正好，看到很多可爱的小狗。你今天怎么样？有什么开心的事情吗？
+                        </div>
+                        <div class="message-time">12:31</div>
+                    </div>
+                    
+                    <div class="message-container">
+                        <div class="message user">
+                            我今天有点累，工作上遇到了一些困难。
+                        </div>
+                        <div class="message-time">12:33</div>
+                    </div>
+                    
+                    <div class="message-container">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dialogue-options">
+                    <div class="dialogue-option" data-response="1">噢，听起来不太顺利。想聊聊发生了什么吗？</div>
+                    <div class="dialogue-option" data-response="2">工作上的挑战有时候确实让人疲惫，需要我给你一些建议吗？</div>
+                    <div class="dialogue-option" data-response="3">辛苦了！要不要试试我最近学的一个放松方法？</div>
+                </div>
+            </div>
+        
+        <div class="voice-sample">
+            <div class="voice-play">
+                <i class="fas fa-play"></i>
+            </div>
+            <div class="voice-waveform"></div>
+            <div class="voice-time">0:15</div>
+        </div>
+    </div>
+        
+        <!-- 好感度系统 -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-icon"><i class="fas fa-heart"></i></div>
+                <span>好感度系统</span>
+            </div>
+            
+            <div class="affinity-system">
+                <div class="affinity-meter">
+                    <div class="affinity-bg"></div>
+                    <div class="affinity-progress-container">
+                        <div class="affinity-progress"></div>
+                    </div>
+                    <div class="affinity-level">信任 Lv.3</div>
+                </div>
+                
+                <div class="affinity-milestones">
+                    <div class="affinity-milestone active">1</div>
+                    <div class="affinity-milestone active">2</div>
+                    <div class="affinity-milestone active">3</div>
+                    <div class="affinity-milestone">4</div>
+                    <div class="affinity-milestone">5</div>
+                </div>
+                
+                <div class="affinity-rewards">
+                    <div class="affinity-reward-title">解锁特权</div>
+                    <div class="affinity-rewards-grid">
+                        <div class="affinity-reward-card">
+                            <div class="affinity-reward-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="affinity-reward-details">
+                                <div class="affinity-reward-name">阅读推荐</div>
+                                <div class="affinity-reward-desc">艾米丽会根据你的喜好推荐书籍</div>
+                            </div>
+                            <div class="affinity-reward-level">Lv.1</div>
+                        </div>
+                        
+                        <div class="affinity-reward-card">
+                            <div class="affinity-reward-icon">
+                                <i class="fas fa-cookie"></i>
+                            </div>
+                            <div class="affinity-reward-details">
+                                <div class="affinity-reward-name">烘焙食谱</div>
+                                <div class="affinity-reward-desc">解锁艾米丽的私房烘焙食谱</div>
+                            </div>
+                            <div class="affinity-reward-level">Lv.2</div>
+                        </div>
+                        
+                        <div class="affinity-reward-card">
+                            <div class="affinity-reward-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div class="affinity-reward-details">
+                                <div class="affinity-reward-name">特别照片</div>
+                                <div class="affinity-reward-desc">艾米丽会分享她的日常照片</div>
+                            </div>
+                            <div class="affinity-reward-level">Lv.3</div>
+                        </div>
+                        
+                        <div class="affinity-reward-card locked">
+                            <div class="affinity-reward-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="affinity-reward-details">
+                                <div class="affinity-reward-name">语音通话</div>
+                                <div class="affinity-reward-desc">解锁与艾米丽的语音通话功能</div>
+                            </div>
+                            <div class="affinity-reward-level">Lv.4</div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+    
+    <!-- 兴趣爱好 -->
+    <div class="section">
+        <div class="section-title">
+            <div class="section-icon"><i class="fas fa-heart"></i></div>
+            <span>兴趣爱好</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+            <div class="flex items-center p-2 bg-gray-50 rounded-lg">
+                <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center text-pink-500 mr-3">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div>
+                    <div class="font-medium">阅读</div>
+                    <div class="text-xs text-gray-500">喜欢浪漫小说和诗集</div>
+                </div>
+            </div>
+            
+            <div class="flex items-center p-2 bg-gray-50 rounded-lg">
+                <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-500 mr-3">
+                    <i class="fas fa-cookie"></i>
+                </div>
+                <div>
+                    <div class="font-medium">烘焙</div>
+                    <div class="text-xs text-gray-500">擅长制作各种甜点</div>
+                </div>
+            </div>
+            
+            <div class="flex items-center p-2 bg-gray-50 rounded-lg">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-500 mr-3">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div>
+                    <div class="font-medium">园艺</div>
+                    <div class="text-xs text-gray-500">喜欢种植花草和香草</div>
+                </div>
+            </div>
+            
+            <div class="flex items-center p-2 bg-gray-50 rounded-lg">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 mr-3">
+                    <i class="fas fa-music"></i>
+                </div>
+                <div>
+                    <div class="font-medium">音乐</div>
+                    <div class="text-xs text-gray-500">喜欢轻音乐和民谣</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 用户评论 -->
+    <div class="section">
+        <div class="section-title">
+            <div class="section-icon"><i class="fas fa-comments"></i></div>
+            <span>用户评论</span>
+        </div>
+        
+        <div class="mb-4 pb-4 border-b border-gray-100">
+            <div class="flex items-center mb-2">
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=50&q=60" class="w-8 h-8 rounded-full mr-2">
+                <div class="font-medium">梦想家</div>
+                <div class="ml-auto text-xs text-gray-500">3天前</div>
+            </div>
+            <p class="text-gray-700 text-sm">
+                和艾米丽聊天真的很治愈，她总是能记住我之前说过的事情，让我感觉被重视。她推荐的书我都很喜欢！
+            </p>
+            <div class="mt-2 text-xs text-gray-500">
+                <span class="mr-3"><i class="fas fa-heart mr-1"></i> 42</span>
+                <span><i class="fas fa-reply mr-1"></i> 回复</span>
+            </div>
+        </div>
+        
+        <div class="mb-4 pb-4 border-b border-gray-100">
+            <div class="flex items-center mb-2">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=50&q=60" class="w-8 h-8 rounded-full mr-2">
+                <div class="font-medium">暗影</div>
+                <div class="ml-auto text-xs text-gray-500">1周前</div>
+            </div>
+            <p class="text-gray-700 text-sm">
+                艾米丽的烘焙技巧真的很棒，按照她的建议做了一个蛋糕，家人都很喜欢。她的性格也很温柔，聊天很舒服。
+            </p>
+            <div class="mt-2 text-xs text-gray-500">
+                <span class="mr-3"><i class="fas fa-heart mr-1"></i> 38</span>
+                <span><i class="fas fa-reply mr-1"></i> 回复</span>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <button class="text-pink-500 font-medium text-sm">查看更多评论</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <div class="nav-icon"><i class="fas fa-user-friends"></i></div>
+            <div class="nav-text">角色</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-comment-alt"></i></div>
+            <div class="nav-text">聊天</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-plus-circle"></i></div>
+            <div class="nav-text">创作</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-users"></i></div>
+            <div class="nav-text">社区</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-user"></i></div>
+            <div class="nav-text">我的</div>
+        </div>
+    </div>
+    
+    <!-- 开始聊天按钮 -->
+    <div class="chat-button" id="startChatBtn">
+        <i class="fas fa-comment-alt"></i>
+    </div>
+    
+    <script>
+        // 初始化GSAP ScrollTrigger插件
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // 等待DOM加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化粒子效果
+            initParticles();
+            
+            // 初始化3D视角效果
+            init3DEffect();
+            
+            // 初始化故事卡片交互
+            initStoryCards();
+            
+            // 初始化性格特点交互
+            initPersonalityTraits();
+            
+            // 初始化对话预览交互
+            initDialoguePreview();
+            
+            // 初始化语音示例交互
+            initVoiceSample();
+            
+            // 初始化好感度系统交互
+            initAffinitySystem();
+            
+            // 初始化开始聊天按钮
+            initStartChatButton();
+            
+            // 添加滚动动画
+            initScrollAnimations();
+            
+            // 添加设备倾斜响应
+            initTiltResponse();
+        });
+        
+        // 初始化粒子效果
+        function initParticles() {
+            if (typeof particlesJS !== 'undefined') {
+                particlesJS('particles-js', {
+                    "particles": {
+                        "number": {
+                            "value": 30,
+                            "density": {
+                                "enable": true,
+                                "value_area": 800
+                            }
+                        },
+                        "color": {
+                            "value": "#ffffff"
+                        },
+                        "shape": {
+                            "type": "circle",
+                            "stroke": {
+                                "width": 0,
+                                "color": "#000000"
+                            },
+                            "polygon": {
+                                "nb_sides": 5
+                            }
+                        },
+                        "opacity": {
+                            "value": 0.3,
+                            "random": true,
+                            "anim": {
+                                "enable": true,
+                                "speed": 1,
+                                "opacity_min": 0.1,
+                                "sync": false
+                            }
+                        },
+                        "size": {
+                            "value": 3,
+                            "random": true,
+                            "anim": {
+                                "enable": true,
+                                "speed": 2,
+                                "size_min": 0.1,
+                                "sync": false
+                            }
+                        },
+                        "line_linked": {
+                            "enable": true,
+                            "distance": 150,
+                            "color": "#ffffff",
+                            "opacity": 0.2,
+                            "width": 1
+                        },
+                        "move": {
+                            "enable": true,
+                            "speed": 1,
+                            "direction": "none",
+                            "random": true,
+                            "straight": false,
+                            "out_mode": "out",
+                            "bounce": false,
+                            "attract": {
+                                "enable": true,
+                                "rotateX": 600,
+                                "rotateY": 1200
+                            }
+                        }
+                    },
+                    "interactivity": {
+                        "detect_on": "canvas",
+                        "events": {
+                            "onhover": {
+                                "enable": true,
+                                "mode": "bubble"
+                            },
+                            "onclick": {
+                                "enable": true,
+                                "mode": "push"
+                            },
+                            "resize": true
+                        },
+                        "modes": {
+                            "bubble": {
+                                "distance": 150,
+                                "size": 6,
+                                "duration": 2,
+                                "opacity": 0.5,
+                                "speed": 3
+                            },
+                            "push": {
+                                "particles_nb": 4
+                            }
+                        }
+                    },
+                    "retina_detect": true
+                });
+            }
+        }
+        
+        // 初始化3D视角效果
+        function init3DEffect() {
+            const header = document.querySelector('.header');
+            const headerImage = document.querySelector('.header-image');
+            const characterInfo = document.querySelector('.character-info');
+            
+            // 鼠标移动时的3D效果
+            header.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left; // 鼠标在头部区域的X坐标
+                const y = e.clientY - rect.top; // 鼠标在头部区域的Y坐标
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const deltaX = (x - centerX) / centerX * 10; // 最大移动距离10px
+                const deltaY = (y - centerY) / centerY * 5; // 最大移动距离5px
+                
+                // 图片移动效果
+                headerImage.style.transform = `scale(1.05) translate(${-deltaX}px, ${-deltaY}px)`;
+                
+                // 角色信息移动效果
+                characterInfo.style.transform = `translateZ(0) translate(${deltaX * 0.5}px, ${deltaY * 0.5}px)`;
+            });
+            
+            // 鼠标离开时恢复
+            header.addEventListener('mouseleave', function() {
+                headerImage.style.transform = '';
+                characterInfo.style.transform = 'translateZ(0)';
+            });
+        }
+        
+        // 初始化故事卡片交互
+        function initStoryCards() {
+            const storyCards = document.querySelectorAll('.story-card');
+            
+            storyCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                });
+            });
+        }
+        
+        // 初始化性格特点交互
+        function initPersonalityTraits() {
+            const spectrumPoints = document.querySelectorAll('.spectrum-point');
+            const tags = document.querySelectorAll('.tag');
+            
+            // 点击性格特点点
+            spectrumPoints.forEach(point => {
+                point.addEventListener('click', function() {
+                    // 移除所有点的active类
+                    spectrumPoints.forEach(p => p.classList.remove('active'));
+                    
+                    // 添加active类到当前点
+                    this.classList.add('active');
+                    
+                    // 获取特点名称
+                    const trait = this.getAttribute('data-trait');
+                    const color = this.getAttribute('data-color');
+                    
+                    // 高亮相关标签
+                    highlightTag(trait);
+                    
+                    // 更新光谱背景颜色
+                    const spectrumBg = document.querySelector('.spectrum-bg');
+                    if (spectrumBg) {
+                        spectrumBg.style.background = `linear-gradient(45deg, ${color}, #ffffff)`;
+                    }
+                    
+                    // 播放点击音效
+                    playClickSound();
+                });
+            });
+            
+            // 点击标签
+            tags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    // 移除所有标签的highlighted类
+                    tags.forEach(t => t.classList.remove('highlighted'));
+                    
+                    // 添加highlighted类到当前标签
+                    this.classList.add('highlighted');
+                    
+                    // 获取特点名称
+                    const trait = this.getAttribute('data-trait');
+                    
+                    // 高亮相关的光谱点
+                    highlightSpectrumPoint(trait);
+                    
+                    // 播放点击音效
+                    playClickSound();
+                });
+            });
+        }
+        
+        // 高亮相关的性格特点
+        function highlightRelatedTraits(period) {
+            const tags = document.querySelectorAll('.tag');
+            
+            // 移除所有标签的highlighted类
+            tags.forEach(tag => tag.classList.remove('highlighted'));
+            
+            // 根据时期高亮不同的标签
+            switch(period) {
+                case '童年':
+                    highlightTagByName('善良');
+                    highlightTagByName('乐观');
+                    break;
+                case '青少年':
+                    highlightTagByName('创意');
+                    highlightTagByName('喜欢阅读');
+                    break;
+                case '大学':
+                    highlightTagByName('烘焙爱好者');
+                    highlightTagByName('细心');
+                    break;
+                case '现在':
+                    highlightTagByName('温柔');
+                    highlightTagByName('体贴');
+                    break;
+            }
+        }
+        
+        // 根据名称高亮标签
+        function highlightTagByName(name) {
+            const tags = document.querySelectorAll('.tag');
+            
+            tags.forEach(tag => {
+                if (tag.textContent === name) {
+                    tag.classList.add('highlighted');
+                }
+            });
+        }
+        
+        // 高亮标签
+        function highlightTag(trait) {
+            const tags = document.querySelectorAll('.tag');
+            
+            tags.forEach(tag => {
+                tag.classList.remove('highlighted');
+                
+                if (tag.getAttribute('data-trait') === trait) {
+                    tag.classList.add('highlighted');
+                }
+            });
+        }
+        
+        // 高亮光谱点
+        function highlightSpectrumPoint(trait) {
+            const points = document.querySelectorAll('.spectrum-point');
+            
+            points.forEach(point => {
+                point.classList.remove('active');
+                
+                if (point.getAttribute('data-trait') === trait) {
+                    point.classList.add('active');
+                    
+                    // 更新光谱背景颜色
+                    const color = point.getAttribute('data-color');
+                    const spectrumBg = document.querySelector('.spectrum-bg');
+                    if (spectrumBg && color) {
+                        spectrumBg.style.background = `linear-gradient(45deg, ${color}, #ffffff)`;
+                    }
+                }
+            });
+        }
+        
+        // 初始化对话预览交互
+        function initDialoguePreview() {
+            const dialogueOptions = document.querySelectorAll('.dialogue-option');
+            
+            dialogueOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 获取响应ID
+                    const responseId = this.getAttribute('data-response');
+                    
+                    // 移除打字指示器
+                    const typingIndicator = document.querySelector('.typing-indicator');
+                    if (typingIndicator) {
+                        typingIndicator.parentNode.remove();
+                    }
+                    
+                    // 创建新的消息容器
+                    const messageContainer = document.createElement('div');
+                    messageContainer.className = 'message-container';
+                    
+                    // 创建新的消息
+                    const message = document.createElement('div');
+                    message.className = 'message character';
+                    
+                    // 根据响应ID设置不同的消息内容
+                    switch(responseId) {
+                        case '1':
+                            message.textContent = '噢，听起来不太顺利。想聊聊发生了什么吗？有时候说出来会感觉好一些，我很乐意倾听。';
+                            break;
+                        case '2':
+                            message.textContent = '工作上的挑战有时候确实让人疲惫。我在出版社工作时也经常遇到困难，我发现深呼吸和列清单对我很有帮助。你想要我分享一些应对压力的小技巧吗？';
+                            break;
+                        case '3':
+                            message.textContent = '辛苦了！我最近学了一个很棒的放松方法，叫做"5-4-3-2-1"感官练习。你可以尝试找出5个你能看到的东西，4个你能触摸到的东西，3个你能听到的声音，2个你能闻到的气味，和1个你能尝到的味道。这能帮助你回到当下。';
+                            break;
+                    }
+                    
+                    // 创建时间标签
+                    const messageTime = document.createElement('div');
+                    messageTime.className = 'message-time';
+                    messageTime.textContent = '12:34';
+                    
+                    // 将消息和时间添加到容器
+                    messageContainer.appendChild(message);
+                    messageContainer.appendChild(messageTime);
+                    
+                    // 将容器添加到对话内容
+                    const dialogueContent = document.querySelector('.dialogue-content');
+                    dialogueContent.appendChild(messageContainer);
+                    
+                    // 隐藏选项
+                    const dialogueOptions = document.querySelector('.dialogue-options');
+                    dialogueOptions.style.display = 'none';
+                    
+                    // 打字机效果
+                    typewriterEffect(message);
+                    
+                    // 播放点击音效
+                    playClickSound();
+                });
+            });
+        }
+        
+        // 打字机效果
+        function typewriterEffect(element) {
+            const text = element.textContent;
+            element.textContent = '';
+            element.style.opacity = '1';
+            
+            let i = 0;
+            const speed = 30; // 打字速度
+            
+            function type() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            
+            type();
+        }
+        
+        // 初始化语音示例交互
+        function initVoiceSample() {
+            const voicePlay = document.querySelector('.voice-play');
+            const voiceWaveform = document.querySelector('.voice-waveform');
+            
+            if (voicePlay && voiceWaveform) {
+                voicePlay.addEventListener('click', function() {
+                    // 切换播放图标
+                    const icon = this.querySelector('i');
+                    
+                    if (icon.classList.contains('fa-play')) {
+                        icon.classList.remove('fa-play');
+                        icon.classList.add('fa-pause');
+                        voiceWaveform.classList.add('playing');
+                        
+                        // 播放音效
+                        playVoiceSample();
+                        
+                        // 15秒后自动停止
+                        setTimeout(() => {
+                            icon.classList.remove('fa-pause');
+                            icon.classList.add('fa-play');
+                            voiceWaveform.classList.remove('playing');
+                        }, 15000);
+                    } else {
+                        icon.classList.remove('fa-pause');
+                        icon.classList.add('fa-play');
+                        voiceWaveform.classList.remove('playing');
+                    }
+                });
+            }
+        }
+        
+        // 播放语音示例
+        function playVoiceSample() {
+            // 创建音频上下文
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const audioCtx = new AudioContext();
+                
+                // 创建振荡器
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                // 设置音频参数
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4音
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // 音量设置为很小
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+                
+                // 连接节点
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                // 播放音效
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 1.5);
+            } catch (e) {
+                console.log('音频API不可用或已被浏览器策略阻止');
+            }
+        }
+        
+        // 初始化好感度系统交互
+        function initAffinitySystem() {
+            const affinityProgress = document.querySelector('.affinity-progress');
+            const affinityLevel = document.querySelector('.affinity-level');
+            const affinityMilestones = document.querySelectorAll('.affinity-milestone');
+            const affinityRewardCards = document.querySelectorAll('.affinity-reward-card');
+            
+            // 点击里程碑
+            affinityMilestones.forEach((milestone, index) => {
+                milestone.addEventListener('click', function() {
+                    // 计算进度百分比
+                    const progress = (index + 1) * 20;
+                    
+                    // 更新进度条
+                    if (affinityProgress) {
+                        affinityProgress.style.width = `${progress}%`;
+                    }
+                    
+                    // 更新等级标签
+                    if (affinityLevel) {
+                        affinityLevel.style.left = `${progress}%`;
+                        
+                        // 更新等级文本
+                        const levelNames = ['初识', '熟悉', '信任', '亲密', '挚友'];
+                        affinityLevel.textContent = `${levelNames[index]} Lv.${index + 1}`;
+                    }
+                    
+                    // 更新里程碑激活状态
+                    affinityMilestones.forEach((m, i) => {
+                        if (i <= index) {
+                            m.classList.add('active');
+                        } else {
+                            m.classList.remove('active');
+                        }
+                    });
+                    
+                    // 更新奖励卡片锁定状态
+                    affinityRewardCards.forEach((card, i) => {
+                        if (i <= index) {
+                            card.classList.remove('locked');
+                        } else {
+                            card.classList.add('locked');
+                        }
+                    });
+                    
+                    // 播放点击音效
+                    playClickSound();
+                });
+            });
+            
+            // 点击奖励卡片
+            affinityRewardCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    if (!this.classList.contains('locked')) {
+                        // 添加脉动动画
+                        this.style.animation = 'pulse 1s';
+                        
+                        // 移除动画
+                        setTimeout(() => {
+                            this.style.animation = '';
+                        }, 1000);
+                        
+                        // 播放点击音效
+                        playClickSound();
+                    }
+                });
+            });
+        }
+        
+        // 初始化开始聊天按钮
+        function initStartChatButton() {
+            const startChatBtn = document.getElementById('startChatBtn');
+            
+            if (startChatBtn) {
+                startChatBtn.addEventListener('click', function() {
+                    // 添加点击效果
+                    this.style.transform = 'scale(1.2) rotate(10deg)';
+                    
+                    // 恢复原状
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 300);
+                    
+                    // 播放点击音效
+                    playClickSound();
+                    
+                    // 模拟转场动画
+                    simulateChatTransition();
+                });
+            }
+        }
+        
+        // 模拟聊天转场
+        function simulateChatTransition() {
+            // 创建转场覆盖层
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.right = '0';
+            overlay.style.bottom = '0';
+            overlay.style.backgroundColor = 'var(--primary-color)';
+            overlay.style.zIndex = '1000';
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.5s ease';
+            
+            // 添加到body
+            document.body.appendChild(overlay);
+            
+            // 触发重排以应用过渡效果
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+                
+                // 转场完成后
+                setTimeout(() => {
+                    alert('即将跳转到聊天界面...');
+                    overlay.style.opacity = '0';
+                    
+                    // 移除覆盖层
+                    setTimeout(() => {
+                        overlay.remove();
+                    }, 500);
+                }, 800);
+            }, 10);
+        }
+        
+        // 初始化滚动动画
+        function initScrollAnimations() {
+            // 为各个部分添加滚动触发动画
+            gsap.utils.toArray('.section').forEach((section, i) => {
+                gsap.from(section, {
+                    y: 30,
+                    opacity: 0,
+                    duration: 0.5,
+                    ease: "power1.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top bottom-=100",
+                        toggleActions: "play none none none"
+                    },
+                    delay: i * 0.05 // 减少错开时间
+                });
+            });
+            
+            // 为故事卡片添加动画
+            gsap.utils.toArray('.story-card').forEach((card, i) => {
+                gsap.from(card, {
+                    y: 20,
+                    opacity: 0,
+                    duration: 0.4,
+                    ease: "power1.out",
+                    scrollTrigger: {
+                        trigger: '.story-cards-container',
+                        start: "top bottom-=50",
+                        toggleActions: "play none none none"
+                    },
+                    delay: 0.1 + i * 0.05 // 减少错开时间
+                });
+            });
+            
+            // 为性格特点点添加动画
+            gsap.utils.toArray('.spectrum-point').forEach((point, i) => {
+                gsap.from(point, {
+                    y: 15,
+                    opacity: 0,
+                    duration: 0.3,
+                    ease: "power1.out",
+                    scrollTrigger: {
+                        trigger: '.personality-spectrum',
+                        start: "top bottom-=100",
+                        toggleActions: "play none none none"
+                    },
+                    delay: 0.1 + i * 0.03 // 减少错开时间
+                });
+            });
+            
+            // 为标签添加动画
+            gsap.utils.toArray('.tag').forEach((tag, i) => {
+                gsap.from(tag, {
+                    scale: 0.9,
+                    opacity: 0,
+                    duration: 0.3,
+                    ease: "power1.out",
+                    scrollTrigger: {
+                        trigger: '.tag-cloud',
+                        start: "top bottom-=100",
+                        toggleActions: "play none none none"
+                    },
+                    delay: 0.2 + (i % 5) * 0.03 // 减少错开时间
+                });
+            });
+        }
+        
+        // 初始化设备倾斜响应
+        function initTiltResponse() {
+            // 检查设备方向API是否可用
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', function(event) {
+                    // 获取设备倾斜角度
+                    const tiltLR = event.gamma; // 左右倾斜
+                    const tiltFB = event.beta; // 前后倾斜
+                    
+                    // 限制倾斜范围
+                    const limitedLR = Math.max(-10, Math.min(10, tiltLR)) / 2;
+                    const limitedFB = Math.max(-10, Math.min(10, tiltFB)) / 2;
+                    
+                    // 应用到头部图片
+                    const headerImage = document.querySelector('.header-image');
+                    if (headerImage) {
+                        headerImage.style.transform = `scale(1.05) translate(${-limitedLR}px, ${-limitedFB}px)`;
+                    }
+                    
+                    // 应用到角色信息
+                    const characterInfo = document.querySelector('.character-info');
+                    if (characterInfo) {
+                        characterInfo.style.transform = `translateZ(0) translate(${limitedLR * 0.5}px, ${limitedFB * 0.5}px)`;
+                    }
+                });
+            }
+        }
+        
+        // 播放点击音效
+        function playClickSound() {
+            // 创建音频上下文
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const audioCtx = new AudioContext();
+                
+                // 创建振荡器
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                // 设置音频参数
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5音
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // 音量设置为很小
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+                
+                // 连接节点
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                // 播放音效
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.2);
+            } catch (e) {
+                console.log('音频API不可用或已被浏览器策略阻止');
+            }
+        }
+
+        // 初始化交互式故事时间线
+        function initCharacterTimeline() {
+            // 显示时间线事件（带动画）
+            const timelineEvents = document.querySelectorAll('.timeline-event');
+            
+            timelineEvents.forEach((event, index) => {
+                setTimeout(() => {
+                    event.classList.add('visible');
+                }, index * 200);
+            });
+            
+            // 默认展开第一个卡片
+            const firstCard = document.querySelector('.timeline-card');
+            if (firstCard) {
+                setTimeout(() => {
+                    toggleTimelineCard(firstCard);
+                }, timelineEvents.length * 200 + 300);
+            }
+        }
+        
+        // 切换时间线卡片展开/折叠状态
+        function toggleTimelineCard(card) {
+            // 获取所有卡片
+            const allCards = document.querySelectorAll('.timeline-card');
+            
+            // 如果点击的卡片已经展开，则折叠它
+            if (card.classList.contains('expanded')) {
+                card.classList.remove('expanded');
+                
+                // 恢复连接线高度
+                const connector = card.closest('.timeline-event').querySelector('.timeline-connector');
+                if (connector) {
+                    connector.style.height = '80px';
+                }
+            } else {
+                // 折叠所有卡片
+                allCards.forEach(c => {
+                    c.classList.remove('expanded');
+                    
+                    // 恢复所有连接线高度
+                    const conn = c.closest('.timeline-event')?.querySelector('.timeline-connector');
+                    if (conn) {
+                        conn.style.height = '80px';
+                    }
+                });
+                
+                // 展开当前卡片
+                card.classList.add('expanded');
+                
+                // 增加连接线高度
+                const connector = card.closest('.timeline-event').querySelector('.timeline-connector');
+                if (connector) {
+                    connector.style.height = '120px';
+                }
+                
+                // 获取卡片的阶段
+                const stage = card.closest('.timeline-event').getAttribute('data-stage');
+                
+                // 高亮相关的性格特点
+                highlightRelatedTraits(stage);
+                
+                // 播放点击音效
+                playClickSound();
+            }
+        }
+    </script>
+</body>
+</html> 

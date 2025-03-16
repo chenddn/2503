@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社区详情</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            padding-bottom: 83px; /* 为底部导航栏留出空间 */
+        }
+        
+        .header {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .header-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .header-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 10;
+        }
+        
+        .community-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            color: white;
+        }
+        
+        .community-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .community-stats {
+            display: flex;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .join-button {
+            position: absolute;
+            bottom: -20px;
+            right: 20px;
+            background-color: #ff2d55;
+            color: white;
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: white;
+            padding: 15px 20px;
+            margin-top: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .tab {
+            margin-right: 20px;
+            padding-bottom: 5px;
+            font-weight: bold;
+            color: #666;
+            position: relative;
+        }
+        
+        .tab.active {
+            color: #ff2d55;
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #ff2d55;
+        }
+        
+        .community-description {
+            background-color: white;
+            padding: 20px;
+            margin: 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .description-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .description-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .description-content {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .community-rules {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .rules-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .rules-list {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .rule-item {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        
+        .rule-number {
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-size: 12px;
+            color: #666;
+            flex-shrink: 0;
+        }
+        
+        .rule-text {
+            flex: 1;
+        }
+        
+        .community-tags {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .community-tag {
+            padding: 6px 12px;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            font-size: 14px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            color: #666;
+        }
+        
+        .post-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin: 15px;
+        }
+        
+        .post-header {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .post-user {
+            flex: 1;
+        }
+        
+        .post-username {
+            font-weight: bold;
+            font-size: 15px;
+        }
+        
+        .post-time {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .post-menu {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #666;
+        }
+        
+        .post-content {
+            padding: 0 15px 15px;
+        }
+        
+        .post-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .post-text {
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .post-image {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .post-actions {
+            display: flex;
+            border-top: 1px solid #f0f0f0;
+            padding: 10px 15px;
+        }
+        
+        .post-action {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .post-action i {
+            margin-right: 5px;
+        }
+        
+        .post-action.liked {
+            color: #ff2d55;
+        }
+        
+        .create-post-button {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #ff2d55;
+            border-radius: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);
+            font-size: 24px;
+        }
+        
+        /* 底部导航栏样式 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 83px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 20px; /* 为iPhone底部安全区域留出空间 */
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8e8e93;
+        }
+        
+        .nav-item.active {
+            color: #ff2d55;
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-text {
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 社区头部信息 -->
+    <div class="header">
+        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="header-image" alt="社区封面">
+        <div class="header-overlay"></div>
+        <div class="back-button">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="community-info">
+            <div class="community-name">角色创作交流</div>
+            <div class="community-stats">
+                <div class="mr-4"><i class="fas fa-users mr-1"></i> 5.2k 成员</div>
+                <div><i class="fas fa-comment-alt mr-1"></i> 活跃讨论</div>
+            </div>
+        </div>
+        <div class="join-button">
+            <i class="fas fa-plus mr-1"></i> 加入
+        </div>
+    </div>
+    
+    <!-- 标签页 -->
+    <div class="tabs">
+        <div class="tab active">帖子</div>
+        <div class="tab">成员</div>
+        <div class="tab">公告</div>
+        <div class="tab">活动</div>
+    </div>
+    
+    <!-- 社区描述 -->
+    <div class="community-description">
+        <div class="description-title">
+            <div class="description-icon"><i class="fas fa-info"></i></div>
+            <span>社区介绍</span>
+        </div>
+        <div class="description-content">
+            分享你创作的角色，交流创作经验和技巧，寻找灵感和反馈。欢迎所有对角色创作感兴趣的朋友加入！我们鼓励原创内容，尊重每个人的创意和想法。
+        </div>
+        
+        <div class="community-rules">
+            <div class="rules-title">
+                <div class="description-icon"><i class="fas fa-gavel"></i></div>
+                <span>社区规则</span>
+            </div>
+            <div class="rules-list">
+                <div class="rule-item">
+                    <div class="rule-number">1</div>
+                    <div class="rule-text">尊重他人，不发表攻击性言论</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-number">2</div>
+                    <div class="rule-text">原创内容标明原创，转载内容注明来源</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-number">3</div>
+                    <div class="rule-text">不发布违反法律法规的内容</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-number">4</div>
+                    <div class="rule-text">积极参与讨论，给予建设性的反馈</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-number">5</div>
+                    <div class="rule-text">禁止发布广告和无关内容</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="community-tags">
+            <div class="community-tag">角色创作</div>
+            <div class="community-tag">设计分享</div>
+            <div class="community-tag">创意讨论</div>
+            <div class="community-tag">新手指南</div>
+            <div class="community-tag">AI角色</div>
+            <div class="community-tag">人设构建</div>
+        </div>
+    </div>
+    
+    <!-- 帖子列表 -->
+    <div class="post-card">
+        <div class="post-header">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="post-avatar" alt="用户头像">
+            <div class="post-user">
+                <div class="post-username">梦想家</div>
+                <div class="post-time">2小时前</div>
+            </div>
+            <div class="post-menu">
+                <i class="fas fa-ellipsis-v"></i>
+            </div>
+        </div>
+        <div class="post-content">
+            <div class="post-title">分享我的最新角色创作：星辰</div>
+            <div class="post-text">
+                分享一下我最近创作的角色"星辰"，她是一位神秘的占星师，能够通过星象预测未来。创作过程中参考了很多占星学的资料，希望能给大家带来一些灵感！
+            </div>
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="post-image" alt="帖子图片">
+        </div>
+        <div class="post-actions">
+            <div class="post-action liked">
+                <i class="fas fa-heart"></i>
+                <span>128</span>
+            </div>
+            <div class="post-action">
+                <i class="fas fa-comment"></i>
+                <span>36</span>
+            </div>
+            <div class="post-action">
+                <i class="fas fa-share-alt"></i>
+                <span>分享</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="post-card">
+        <div class="post-header">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="post-avatar" alt="用户头像">
+            <div class="post-user">
+                <div class="post-username">探险家</div>
+                <div class="post-time">昨天</div>
+            </div>
+            <div class="post-menu">
+                <i class="fas fa-ellipsis-v"></i>
+            </div>
+        </div>
+        <div class="post-content">
+            <div class="post-title">角色创作中的性格塑造技巧</div>
+            <div class="post-text">
+                在创作角色时，性格塑造是非常重要的一环。一个立体的角色应该有自己的优点和缺点，有自己的喜好和厌恶，有自己的目标和恐惧。这些元素组合在一起，才能让角色更加真实可信。
+                
+                以下是我总结的一些性格塑造技巧：
+                
+                1. 确定角色的核心特质
+                2. 设计与核心特质相矛盾的一面
+                3. 给角色设定成长空间
+                4. 考虑角色的背景如何影响性格
+                5. 通过对话和行为展现性格
+                
+                大家有什么其他的技巧可以分享吗？
+            </div>
+        </div>
+        <div class="post-actions">
+            <div class="post-action">
+                <i class="fas fa-heart"></i>
+                <span>86</span>
+            </div>
+            <div class="post-action">
+                <i class="fas fa-comment"></i>
+                <span>42</span>
+            </div>
+            <div class="post-action">
+                <i class="fas fa-share-alt"></i>
+                <span>分享</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="post-card">
+        <div class="post-header">
+            <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" class="post-avatar" alt="用户头像">
+            <div class="post-user">
+                <div class="post-username">艺术家</div>
+                <div class="post-time">3天前</div>
+            </div>
+            <div class="post-menu">
+                <i class="fas fa-ellipsis-v"></i>
+            </div>
+        </div>
+        <div class="post-content">
+            <div class="post-title">【新手指南】如何开始你的第一个角色创作</div>
+            <div class="post-text">
+                看到很多新朋友不知道如何开始创作自己的第一个角色，今天分享一个简单的步骤：
+                
+                1. 从一个基本概念开始（职业、爱好、特殊能力等）
+                2. 思考这个角色的外表特征
+                3. 设定3-5个主要性格特点
+                4. 构思一个简单的背景故事
+                5. 考虑角色的说话方式和习惯
+                
+                记住，完美的角色是在不断调整中形成的，不要害怕修改和完善！
+            </div>
+            <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="post-image" alt="帖子图片">
+        </div>
+        <div class="post-actions">
+            <div class="post-action">
+                <i class="fas fa-heart"></i>
+                <span>152</span>
+            </div>
+            <div class="post-action">
+                <i class="fas fa-comment"></i>
+                <span>58</span>
+            </div>
+            <div class="post-action">
+                <i class="fas fa-share-alt"></i>
+                <span>分享</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 创建帖子按钮 -->
+    <div class="create-post-button">
+        <i class="fas fa-pen"></i>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-user-friends"></i></div>
+            <div class="nav-text">角色</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-comment-alt"></i></div>
+            <div class="nav-text">聊天</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-plus-circle"></i></div>
+            <div class="nav-text">创作</div>
+        </div>
+        <div class="nav-item active">
+            <div class="nav-icon"><i class="fas fa-users"></i></div>
+            <div class="nav-text">社区</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-user"></i></div>
+            <div class="nav-text">我的</div>
+        </div>
+    </div>
+</body>
+</html> 

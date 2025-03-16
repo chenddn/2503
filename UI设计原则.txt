@@ -1,0 +1,11 @@
+
+请通过以下方式帮我完成所有界面的原型设计，并确保这些原型截面可以直接用于开发
+1.作为产品经理，定义关键界面，确保信息架构合理。
+2.高保真UI设计：作为UI设计师，设计贴近真实IOS/Android设计规范的界面，使用现代化的UI元素，使其拥有良好的视觉体验。
+3.HTML原型实现：使用HTML+Tailwind CSS （或Bootstrap）生成所有原型界面，并使用FontAwesome(或其他开源 U组件)让界面更加精美、接近真实的 APP 设计。
+拆分代码文件，保持结构清晰:
+5、每个界面应作为独立的HTML文件存放,如 home.html、profile.html、settings.htmi等。
+-index.htm! 作为主入口，不直接写入所有界面的 HTML代码，而是使用 iframe 的方式嵌入这些HTML片段，并将所有页面直接平铺展示在Index页面中，而不是跳转链接
+-真实感增强:
+界面尺寸应模拟 iPhone 15 Pro，并让界面圆伟化，使其更像真实的手机界面。使用真实的 U1图片，而非占位符图片(可从 Unsplash、Pexels、Apple 官方 Ul资源中选）
+添加顶部状态栏(模拟 iOS 状态栏)，并包含App 导航栏(类似 iOS 底部 Tab Bar)。
