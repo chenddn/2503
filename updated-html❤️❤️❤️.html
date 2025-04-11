@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI陪伴补充卡</title>
+    <style>
+        :root {
+            --primary: #e0c7b3;
+            --primary-light: #efe1d5;
+            --background: #f9e2ce;  /* Updated to match the peachy background */
+            --text-color: #614434;
+            --text-light: #8c7268;
+            --card-bg: #f9f6f3;
+            --input-bg: #ffffff;
+            --tab-bg: #f2eadb;
+            --tab-active-bg: #f9f6f3;
+            --tab-active-text: #614434;
+            --tab-inactive-text: #8c7268;
+            --border-radius: 18px;
+            --button-radius: 20px;
+            --input-border: rgba(200, 175, 155, 0.3);
+            --shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            --button-bg: #e2b597;  /* Slightly updated to match the buttons in the image */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            /* Updated to create a peachy gradient background similar to image */
+            background: linear-gradient(135deg, #f9d7bc 0%, #f9c4a8 50%, #f2b18e 100%);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .phone-container {
+            width: 375px;
+            height: 760px;
+            background-color: #e8a282; /* 更改为与背景匹配的暖色调 */
+            border-radius: 40px;
+            padding: 15px;
+            position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12), 0 10px 10px rgba(0,0,0,0.03);
+            overflow: hidden;
+        }
+        
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background-color: var(--background);
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .app-content {
+            height: 100%;
+            overflow-y: auto;
+            padding: 16px;
+            position: relative;
+            z-index: 5;
+        }
+        
+        .app-content::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .card {
+            background-color: #fdf1e7; /* 改为更淡的暖色调 */
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        
+        .title-section {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .title-required {
+            display: inline-block;
+            background-color: #e8a282; /* 与手机框颜色匹配 */
+            color: white; /* 改为白色以增加对比度 */
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+        
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--input-border);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+        
+        textarea.form-control {
+            min-height: 80px;
+            resize: none;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23614434' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 30px;
+        }
+        
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e2d6cc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #e8a282; /* 与手机框颜色匹配 */
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(16px);
+        }
+        
+        .row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .col-6 {
+            flex: 1;
+        }
+        
+        .section-title {
+            font-size: 15px;
+            color: var(--text-color);
+            margin-bottom: 12px;
+            font-weight: normal;
+        }
+        
+        .profile-upload {
+            width: 80px;
+            height: 80px;
+            background-color: #f0e9e4;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            border: 1px dashed var(--input-border);
+        }
+        
+        .profile-icon {
+            color: var(--text-light);
+            font-size: 24px;
+        }
+        
+        .btn {
+            background-color: #e8a282; /* 与手机框颜色匹配 */
+            color: white; /* 改为白色以增加对比度 */
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            background-color: #d27c5c; /* 悬停时颜色更深 */
+        }
+        
+        .btn-icon {
+            margin-right: 6px;
+            font-size: 16px;
+        }
+        
+        .notch {
+            position: absolute;
+            width: 160px;
+            height: 30px;
+            background-color: #d27c5c; /* 更改为与手机框匹配的颜色 */
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            z-index: 1000;
+        }
+        
+        .home-indicator {
+            position: absolute;
+            width: 120px;
+            height: 5px;
+            background-color: #d27c5c; /* 更改为与手机框匹配的颜色 */
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 3px;
+            z-index: 1000;
+        }
+        
+        .tab-container {
+            display: flex;
+            background-color: #fae3d3; /* 改为更淡的暖色调 */
+            border-radius: var(--border-radius);
+            padding: 3px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 14px;
+            color: var(--tab-inactive-text);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: normal;
+        }
+        
+        .tab.active {
+            background-color: #fdf1e7; /* 与卡片背景颜色匹配 */
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            color: #d27c5c; /* 更改为更深的暖色调 */
+            font-weight: 600;
+        }
+        
+        .custom-experience, .custom-scene {
+            margin-bottom: 16px;
+            position: relative;
+        }
+        
+        .remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            color: #bb8c6d;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            z-index: 2;
+        }
+        
+        .add-container {
+            margin-top: 24px;
+        }
+        
+        @media (max-width: 375px) {
+            .phone-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+                padding: 0;
+            }
+            
+            .phone-screen {
+                border-radius: 0;
+            }
+            
+            .notch, .home-indicator {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="notch"></div>
+        <div class="phone-screen">
+            <div class="app-content">
+                <div class="tab-container">
+                    <div class="tab active">成长经历</div>
+                    <div class="tab">人生目标</div>
+                    <div class="tab">场景设置</div>
+                    <div class="tab">外貌与喜好</div>
+                </div>
+                
+                <!-- 成长经历卡 -->
+                <div class="card">
+                    <div class="title-section">
+                        <span>成长经历</span>
+                        <span class="title-required">选填</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>角色的成长环境和经历以及影响</label>
+                        <textarea class="form-control" placeholder="描述角色的成长环境，经历了什么，这些经历对他产生了什么样的影响..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>学习过程中的重要事件及影响</label>
+                        <textarea class="form-control" placeholder="学习过程中发生了什么重要事情，这些事情对角色的影响..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>工作过程中的事件及影响</label>
+                        <textarea class="form-control" placeholder="工作过程中发生了什么，对角色产生了什么影响..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>重大事件经历及其影响</label>
+                        <textarea class="form-control" placeholder="角色经历过的重大事件，这些事件如何影响了角色..."></textarea>
+                    </div>
+                    
+                    <!-- 自定义经历区域 -->
+                    <div id="custom-experiences">
+                        <!-- 这里会通过 JavaScript 动态添加自定义经历 -->
+                    </div>
+                    
+                    <!-- 添加经历按钮 -->
+                    <div class="add-container">
+                        <button id="add-experience-btn" class="btn">
+                            <span class="btn-icon">+</span> 添加重大经历及其影响
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 人生目标卡 -->
+                <div class="card" style="display: none;">
+                    <div class="title-section">
+                        <span>人生目标</span>
+                        <span class="title-required">选填</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>角色的人生追求是什么</label>
+                        <textarea class="form-control" placeholder="角色最大的人生追求或目标是什么..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>为人生追求放弃的东西</label>
+                        <textarea class="form-control" placeholder="为了实现这个人生追求，角色放弃或愿意放弃什么..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>人生追求的原因</label>
+                        <textarea class="form-control" placeholder="角色为什么有这样的人生追求，背后的原因是什么..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>追求过程中的挣扎与成长</label>
+                        <textarea class="form-control" placeholder="在追求这个目标的过程中，角色经历了哪些挣扎和成长..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- 场景设置卡 -->
+                <div class="card" style="display: none;">
+                    <div class="title-section">
+                        <span>场景设置</span>
+                        <span class="title-required">选填</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>角色喜欢的场景及反应</label>
+                        <textarea class="form-control" placeholder="角色喜欢去哪些场景，在这些场景下会有什么样的反应..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>独处时的状态和内心活动</label>
+                        <textarea class="form-control" placeholder="角色一个人独处时的状态和内心活动是怎样的..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>聚会时的状态和内心活动</label>
+                        <textarea class="form-control" placeholder="角色在聚会时的状态和内心活动是怎样的..."></textarea>
+                    </div>
+                    
+                    <!-- 自定义场景区域 -->
+                    <div id="custom-scenes">
+                        <!-- 这里会通过 JavaScript 动态添加自定义场景 -->
+                    </div>
+                    
+                    <!-- 添加场景按钮 -->
+                    <div class="add-container">
+                        <button id="add-scene-btn" class="btn">
+                            <span class="btn-icon">+</span> 添加其他场景下的状态和内心活动
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 外貌与喜好卡 -->
+                <div class="card" style="display: none;">
+                    <div class="title-section">
+                        <span>外貌与喜好</span>
+                        <span class="title-required">选填</span>
+                    </div>
+                    
+                    <div class="section-title">角色外貌</div>
+                    
+                    <div class="form-group">
+                        <label>外貌特征</label>
+                        <textarea class="form-control" placeholder="描述角色的发型、面部特征、体型体态等..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>最常露出的表情</label>
+                        <input type="text" class="form-control" placeholder="角色最常见的面部表情...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>常穿的衣服风格</label>
+                        <textarea class="form-control" placeholder="描述角色最常穿的衣服风格和类型..."></textarea>
+                    </div>
+                    
+                    <div class="section-title">日常喜好</div>
+                    
+                    <div class="form-group">
+                        <label>给角色带来极致愉悦的事物</label>
+                        <textarea class="form-control" placeholder="什么事情会给角色带来极致的愉悦感..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>角色讨厌的事物</label>
+                        <textarea class="form-control" placeholder="角色讨厌什么事物，为什么..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>让角色感到绝望的事物</label>
+                        <textarea class="form-control" placeholder="什么事物会让角色感到极致的绝望..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>让角色感到恐惧的事物</label>
+                        <textarea class="form-control" placeholder="角色恐惧什么，为什么..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>角色日常喜欢做的事情</label>
+                        <textarea class="form-control" placeholder="角色在日常生活中喜欢做哪些事情..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>工作中的偏好或安排</label>
+                        <textarea class="form-control" placeholder="角色在工作中有哪些偏好或习惯性的安排..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>最喜欢的食物</label>
+                        <textarea class="form-control" placeholder="角色最喜欢吃的食物是什么，为什么..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="toggle-container">
+                            <label>是否有随身携带的物品</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="personal-item" onchange="document.getElementById('personal-item-details').style.display = this.checked ? 'block' : 'none'">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="personal-item-details" style="display: none;">
+                        <label>随身物品详情</label>
+                        <textarea class="form-control" placeholder="角色随身携带什么物品，这个物品有什么意义..."></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="home-indicator"></div>
+        </div>
+    </div>
+    
+    <script>
+        // 页面加载完成后的交互
+        document.addEventListener('DOMContentLoaded', function() {
+            // 成长经历相关
+            let experienceCount = 0;
+            const customExperiencesContainer = document.getElementById('custom-experiences');
+            const addExperienceBtn = document.getElementById('add-experience-btn');
+            
+            // 场景相关
+            let sceneCount = 0;
+            const customScenesContainer = document.getElementById('custom-scenes');
+            const addSceneBtn = document.getElementById('add-scene-btn');
+            
+            // 添加经历按钮点击处理
+            if (addExperienceBtn) {
+                addExperienceBtn.addEventListener('click', function() {
+                    addExperience();
+                });
+            }
+            
+            // 添加场景按钮点击处理
+            if (addSceneBtn) {
+                addSceneBtn.addEventListener('click', function() {
+                    addScene();
+                });
+            }
+            
+            // 添加经历的函数
+            function addExperience() {
+                experienceCount++;
+                const experienceId = `experience-${experienceCount}`;
+                
+                const experienceElement = document.createElement('div');
+                experienceElement.className = 'custom-experience form-group';
+                experienceElement.id = experienceId;
+                
+                experienceElement.innerHTML = `
+                    <label>重大经历及其影响 ${experienceCount}</label>
+                    <button class="remove-btn" data-id="${experienceId}">删除</button>
+                    <textarea class="form-control" placeholder="描述角色经历的重大事件及这些事件对角色产生的影响..."></textarea>
+                `;
+                
+                customExperiencesContainer.appendChild(experienceElement);
+                
+                // 为新添加的删除按钮添加事件监听
+                const removeBtn = experienceElement.querySelector('.remove-btn');
+                removeBtn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const elementToRemove = document.getElementById(id);
+                    if (elementToRemove) {
+                        elementToRemove.remove();
+                    }
+                });
+                
+                // 获取新添加的文本区域并聚焦
+                const newTextarea = experienceElement.querySelector('textarea');
+                if (newTextarea) {
+                    newTextarea.focus();
+                }
+            }
+            
+            // 添加场景的函数
+            function addScene() {
+                sceneCount++;
+                const sceneId = `scene-${sceneCount}`;
+                
+                const sceneElement = document.createElement('div');
+                sceneElement.className = 'custom-scene form-group';
+                sceneElement.id = sceneId;
+                
+                sceneElement.innerHTML = `
+                    <label>其他场景下的状态和内心活动 ${sceneCount}</label>
+                    <button class="remove-btn" data-id="${sceneId}">删除</button>
+                    <textarea class="form-control" placeholder="描述角色在特定场景下的状态和内心活动..."></textarea>
+                `;
+                
+                customScenesContainer.appendChild(sceneElement);
+                
+                // 为新添加的删除按钮添加事件监听
+                const removeBtn = sceneElement.querySelector('.remove-btn');
+                removeBtn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const elementToRemove = document.getElementById(id);
+                    if (elementToRemove) {
+                        elementToRemove.remove();
+                    }
+                });
+                
+                // 获取新添加的文本区域并聚焦
+                const newTextarea = sceneElement.querySelector('textarea');
+                if (newTextarea) {
+                    newTextarea.focus();
+                }
+            }
+            
+            // 标签切换功能
+            const tabs = document.querySelectorAll('.tab');
+            const cards = document.querySelectorAll('.card');
+            
+            tabs.forEach((tab, index) => {
+                tab.addEventListener('click', () => {
+                    // 移除所有激活状态
+                    tabs.forEach(t => t.classList.remove('active'));
+                    cards.forEach(c => c.style.display = 'none');
+                    
+                    // 激活当前标签和卡片
+                    tab.classList.add('active');
+                    cards[index].style.display = 'block';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
