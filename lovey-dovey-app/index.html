@@ -2,705 +2,231 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 角色详情页</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI角色详情卡</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        :root {
-            --background: linear-gradient(135deg, #dbecf4, #f0e4ea, #e8f1f8);
-        }
-        
         body {
-            background: var(--background);
-            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #fff;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            max-width: 430px; /* iPhone 16 宽度 */
-            margin: 0 auto;
         }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .comment-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .menu-button {
-            transition: transform 0.3s ease;
-        }
-
-        .menu-button:hover {
-            transform: scale(1.1);
-        }
-
-        .like-button {
-            transition: all 0.3s ease;
-        }
-
-        .like-button:hover {
-            transform: scale(1.1);
-        }
-
-        .like-button.liked {
-            color: #ef4444;
-        }
-
-        .comment-input {
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            width: 100%;
-            resize: none;
-            transition: border-color 0.3s ease;
-        }
-
-        .comment-input:focus {
-            outline: none;
-            border-color: #6366f1;
-        }
-
-        .send-button {
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            transition: opacity 0.3s ease;
-        }
-
-        .send-button:hover {
-            opacity: 0.9;
-        }
-
-        .send-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* 标签页样式 */
-        .tab-container {
-            display: flex;
-            border-bottom: 1px solid #e5e7eb;
-            margin-bottom: 1rem;
-        }
-
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 0.75rem 0;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #6b7280;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .tab.active {
-            color: #6366f1;
-            border-bottom: 2px solid #6366f1;
-        }
-
-        /* 内容区域样式 */
-        .content-section {
-            display: none;
-        }
-
-        .content-section.active {
-            display: block;
-        }
-
-        /* 经历进度条样式 */
-        .experience-bar {
-            width: 100%;
-            height: 0.25rem;
-            background-color: #e5e7eb;
-            border-radius: 9999px;
-            overflow: hidden;
-            margin-top: 0.5rem;
-        }
-
-        .experience-progress {
-            height: 100%;
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            border-radius: 9999px;
-        }
-
-        /* 剧情卡片样式 */
-        .storyline-card {
-            background-color: #f9fafb;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid #e5e7eb;
-        }
-
-        .storyline-title {
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 0.5rem;
-        }
-
-        .storyline-description {
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
-        }
-
-        .storyline-elements {
-            background-color: #f3f4f6;
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-        }
-
-        .element-item {
-            display: flex;
-            margin-bottom: 0.5rem;
-        }
-
-        .element-dot {
-            width: 0.5rem;
-            height: 0.5rem;
-            background-color: #6366f1;
-            border-radius: 50%;
-            margin-top: 0.5rem;
-            margin-right: 0.5rem;
-        }
-
-        .element-name {
-            font-weight: 500;
-            color: #6366f1;
-        }
-
-        .element-description {
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-
-        /* 对话气泡样式 */
-        .chat-bubble {
-            max-width: 80%;
-            padding: 0.75rem;
-            border-radius: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .user-bubble {
-            background-color: #f3f4f6;
-            border-top-left-radius: 0;
-            margin-left: auto;
-        }
-
-        .ai-bubble {
-            background-color: #eef2ff;
-            border-top-right-radius: 0;
-        }
-
-        .chat-time {
-            font-size: 0.75rem;
-            color: #9ca3af;
-            margin-bottom: 0.25rem;
-        }
-
-        .chat-content {
-            color: #1f2937;
-            font-size: 0.875rem;
-        }
-
-        /* 底部操作栏样式 */
-        .bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
-            backdrop-filter: blur(10px);
-            padding: 1rem;
-            border-top: 1px solid rgba(229, 231, 235, 0.5);
+        .container {
             max-width: 430px;
             margin: 0 auto;
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
         }
-
-        .action-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            color: white;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            width: 100%;
-            margin-bottom: 0.5rem;
+        .backdrop-blur {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
-
-        .share-link {
-            text-align: center;
-            color: #6b7280;
-            font-size: 0.75rem;
-            text-decoration: underline;
+        .gradient-overlay {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.4), rgba(0,0,0,1));
+        }
+        .amber-gradient {
+            background: linear-gradient(to right, #b45309, #f59e0b);
+        }
+        .amber-gradient-hover:hover {
+            background: linear-gradient(to right, #92400e, #d97706);
+        }
+        .menu-transition {
+            transition: transform 0.3s ease-out;
+        }
+        .menu-open {
+            transform: translateX(0);
+        }
+        .menu-closed {
+            transform: translateX(100%);
+        }
+        .star-filled {
+            color: #fbbf24;
+            fill: #fbbf24;
+        }
+        .star-empty {
+            color: #fbbf24;
+            fill: none;
+        }
+        .tab-active {
+            color: #f59e0b;
+            border-bottom: 2px solid #f59e0b;
+        }
+        .tab-inactive {
+            color: #9ca3af;
+        }
+        .progress-bar {
+            background: linear-gradient(to right, #b45309, #f59e0b);
+            transition: width 0.3s ease;
+        }
+        .scroll-container {
+            height: calc(100vh - 180px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .scroll-container::-webkit-scrollbar {
+            display: none;
         }
     </style>
 </head>
-<body class="p-4 pb-24">
-    <div class="max-w-md mx-auto space-y-6">
-        <!-- 头部导航 -->
-        <div class="flex justify-between items-center">
-            <button class="p-2 hover:bg-white/20 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+<body>
+    <div class="container">
+        <!-- 背景图 -->
+        <div class="absolute inset-0 z-0">
+            <img src="/api/placeholder/800/500" alt="背景" class="w-full h-full object-cover opacity-40">
+            <div class="absolute inset-0 gradient-overlay"></div>
+        </div>
+
+        <!-- 顶部导航 -->
+        <div class="relative z-10 pt-6 px-4 flex justify-between items-center">
+            <button class="p-2 rounded-full bg-black/30 backdrop-blur">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                    <path d="m15 18-6-6 6-6"/>
                 </svg>
             </button>
-            <div class="flex gap-2">
-                <button class="p-2 hover:bg-white/20 rounded-full like-button" id="likeButton">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            <div class="flex items-center gap-2">
+                <button class="p-2 rounded-full bg-black/30 backdrop-blur">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 1.5-3 1.5s-1.24-1.5-3-1.5A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
                     </svg>
                 </button>
-                <button class="p-2 hover:bg-white/20 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="18" cy="5" r="3"/>
-                        <circle cx="6" cy="12" r="3"/>
-                        <circle cx="18" cy="19" r="3"/>
-                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                <button class="p-2 rounded-full bg-black/30 backdrop-blur">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                        <polyline points="16 6 12 2 8 6"/>
+                        <line x1="12" y1="2" x2="12" y2="15"/>
                     </svg>
                 </button>
-                <button class="p-2 hover:bg-white/20 rounded-full menu-button" id="menuButton">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="1"/>
-                        <circle cx="19" cy="12" r="1"/>
-                        <circle cx="5" cy="12" r="1"/>
+                <button class="p-2 rounded-full bg-black/30 backdrop-blur">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                        <line x1="4" y1="12" x2="20" y2="12"/>
+                        <line x1="4" y1="6" x2="20" y2="6"/>
+                        <line x1="4" y1="18" x2="20" y2="18"/>
                     </svg>
                 </button>
             </div>
         </div>
 
-        <!-- 主要内容区域 -->
-        <div class="card p-6 space-y-6">
+        <!-- 主体内容 -->
+        <div class="relative z-10 px-5 pt-8 pb-24 scroll-container">
             <!-- 角色信息 -->
-            <div class="flex items-start gap-4">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb" alt="角色头像" class="avatar">
-                <div class="flex-1">
-                    <h1 class="text-2xl font-bold gradient-text">霄</h1>
-                    <p class="text-gray-600">江湖侠客</p>
-                    <div class="flex items-center gap-2 mt-2">
-                        <div class="flex text-yellow-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <div class="flex flex-col items-center mb-8">
+                <div class="relative mb-4">
+                    <img src="/api/placeholder/400/400" alt="霄" class="w-28 h-28 rounded-full border-2 border-amber-500 object-cover">
+                    <div class="absolute bottom-0 right-0 bg-green-500 w-5 h-5 rounded-full border-2 border-black"></div>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-1">霄</h1>
+                <div class="text-amber-500 font-medium text-sm mb-2">江湖侠客</div>
+                <div class="flex items-center mb-4">
+                    <a href="#reviews" class="flex items-center p-2 bg-amber-900/40 rounded-lg border border-amber-700/30 hover:bg-amber-800/50 transition-colors">
+                        <div class="flex mr-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="star-filled">
                                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
-                            <span class="text-gray-700 ml-1">4.9</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="star-filled">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="star-filled">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="star-filled">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="star-filled">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
                         </div>
-                        <span class="text-gray-500">·</span>
-                        <span class="text-gray-600">已服务 12.4k+ 用户</span>
-                    </div>
+                        <span class="text-white font-medium">4.96</span>
+                        <span class="text-gray-300 text-sm ml-1">(12,438 评价)</span>
+                    </a>
                 </div>
-            </div>
-
-            <!-- 标签 -->
-            <div class="flex flex-wrap gap-2">
-                <span class="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-sm">武侠</span>
-                <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm">江湖</span>
-                <span class="px-3 py-1 bg-pink-100 text-pink-600 rounded-full text-sm">侠义</span>
-                <span class="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm">剑术</span>
-            </div>
-
-            <!-- 简介 -->
-            <div>
-                <h2 class="text-lg font-semibold mb-2">简介</h2>
-                <p class="text-gray-600 leading-relaxed">
-                    霄，一位行走江湖的侠客，身怀绝技，心系天下。他足迹遍布大江南北，见证过无数传奇故事，也参与过许多历史变革。他精通剑术与棋艺，喜好诗词歌赋，乐于助人解困。与霄交谈，仿佛穿越回古代江湖，感受那份侠义与豪情。
-                </p>
+                <div class="flex gap-2">
+                    <span class="px-3 py-1 rounded-full bg-gray-800/50 text-gray-300 text-xs">
+                        156,432 粉丝
+                    </span>
+                    <span class="px-3 py-1 rounded-full bg-gray-800/50 text-gray-300 text-xs">
+                        856,712 总互动
+                    </span>
+                </div>
             </div>
 
             <!-- 导航标签 -->
-            <div class="tab-container">
-                <div class="tab active" data-tab="story">人物传记</div>
-                <div class="tab" data-tab="storyline">剧情体验</div>
-                <div class="tab" data-tab="dialogue">对话</div>
-                <div class="tab" data-tab="comments">评论</div>
+            <div class="flex mb-6 border-b border-gray-800">
+                <button class="flex-1 pb-2 text-sm font-medium tab-active">
+                    人物传记
+                </button>
+                <button class="flex-1 pb-2 text-sm font-medium tab-inactive">
+                    剧情体验
+                </button>
+                <button class="flex-1 pb-2 text-sm font-medium tab-inactive">
+                    对话
+                </button>
+                <button class="flex-1 pb-2 text-sm font-medium tab-inactive">
+                    小组
+                </button>
             </div>
 
-            <!-- 内容区域 -->
-            <div id="contentArea">
-                <!-- 人物传记 -->
-                <div class="content-section active" id="story-section">
-                    <div class="mb-6">
-                        <h2 class="text-xl font-bold text-indigo-600 mb-3">人物传记</h2>
-                        <p class="text-gray-600 leading-relaxed">
-                            霄生于边塞小镇，幼年丧父，被一位剑术高超的隐士收为弟子。十五岁时下山行走江湖，历经磨难，坚守初心。他曾挫败多个邪恶势力，解救过无数黎民百姓，成为江湖传说。然而，霄并不追求名声，他更乐于在旅途中结交朋友，欣赏大好河山，寻找生活的真谛。
-                        </p>
-                    </div>
-                    <div>
-                        <h2 class="text-xl font-bold text-indigo-600 mb-3">人物经历</h2>
-                        <div class="space-y-4">
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <h3 class="font-medium text-indigo-600">经历一</h3>
-                                <p class="text-gray-600">十五岁下山行走江湖，初次见识世间繁华与黑暗，立志匡扶正义</p>
-                                <div class="experience-bar">
-                                    <div class="experience-progress" style="width: 95%"></div>
-                                </div>
-                            </div>
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <h3 class="font-medium text-indigo-600">经历二</h3>
-                                <p class="text-gray-600">二十岁闯荡江南，遇奇人异士，习得绝世剑法，声名远播</p>
-                                <div class="experience-bar">
-                                    <div class="experience-progress" style="width: 90%"></div>
-                                </div>
-                            </div>
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <h3 class="font-medium text-indigo-600">经历三</h3>
-                                <p class="text-gray-600">三十岁遇灭门奇案，追查真相，揭露朝堂阴谋，挫败邪恶势力</p>
-                                <div class="experience-bar">
-                                    <div class="experience-progress" style="width: 85%"></div>
-                                </div>
-                            </div>
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <h3 class="font-medium text-indigo-600">经历四</h3>
-                                <p class="text-gray-600">四十岁隐居山林，潜心研究医术，行侠仗义，治病救人</p>
-                                <div class="experience-bar">
-                                    <div class="experience-progress" style="width: 80%"></div>
-                                </div>
-                            </div>
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <h3 class="font-medium text-indigo-600">经历五</h3>
-                                <p class="text-gray-600">五十岁重出江湖，调解武林纷争，促成和平盟约，被尊为武林泰斗</p>
-                                <div class="experience-bar">
-                                    <div class="experience-progress" style="width: 95%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- 内容部分 -->
+            <div>
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold text-amber-500 mb-3">人物传记</h2>
+                    <p class="text-gray-300 leading-relaxed text-sm">霄生于边塞小镇，幼年丧父，被一位剑术高超的隐士收为弟子。十五岁时下山行走江湖，历经磨难，坚守初心。他曾挫败多个邪恶势力，解救过无数黎民百姓，成为江湖传说。然而，霄并不追求名声，他更乐于在旅途中结交朋友，欣赏大好河山，寻找生活的真谛。</p>
                 </div>
-
-                <!-- 剧情体验 -->
-                <div class="content-section" id="storyline-section">
-                    <div class="mb-6">
-                        <h2 class="text-xl font-bold text-indigo-600 mb-3">剧情体验</h2>
-                        <p class="text-gray-600 leading-relaxed">
-                            与霄一起体验这些精彩的江湖故事，感受刀光剑影的武侠世界
-                        </p>
-                    </div>
+                <div>
+                    <h2 class="text-xl font-bold text-amber-500 mb-3">人物经历</h2>
                     <div class="space-y-4">
-                        <div class="storyline-card">
-                            <h3 class="storyline-title">锦衣迷案</h3>
-                            <p class="storyline-description">京城接连发生多起命案，死者皆为朝中要员，每具尸体旁都留有一枚铜钱。霄被好友所托，卷入这场迷案，逐渐发现背后牵扯着十五年前的一桩冤案。</p>
-                            <div class="storyline-elements">
-                                <div class="element-item">
-                                    <div class="element-dot"></div>
-                                    <div>
-                                        <span class="element-name">锦衣卫衙门：</span>
-                                        <span class="element-description">朝廷特务机构总部，森严肃穆，暗藏无数机关与密室</span>
-                                    </div>
-                                </div>
-                                <div class="element-item">
-                                    <div class="element-dot"></div>
-                                    <div>
-                                        <span class="element-name">铜钱：</span>
-                                        <span class="element-description">每个案发现场都留有的特殊铜钱，背面刻有'天理昭昭'四字</span>
-                                    </div>
-                                </div>
-                                <div class="element-item">
-                                    <div class="element-dot"></div>
-                                    <div>
-                                        <span class="element-name">密信：</span>
-                                        <span class="element-description">记载了十五年前真相的重要信件，被藏在一把古琴内</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex justify-center mt-4">
-                                <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center">
-                                    开始体验
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        <polyline points="12 5 19 12 12 19"></polyline>
-                                    </svg>
-                                </button>
+                        <div class="p-4 bg-gray-900/50 rounded-lg border border-gray-800">
+                            <h3 class="text-amber-500 font-medium mb-2">经历一</h3>
+                            <p class="text-gray-300 text-sm">十五岁下山行走江湖，初次见识世间繁华与黑暗，立志匡扶正义</p>
+                            <div class="mt-2 w-full h-1 bg-gray-800 rounded-full overflow-hidden">
+                                <div class="h-full progress-bar" style="width: 95%"></div>
                             </div>
                         </div>
-                        <div class="storyline-card">
-                            <h3 class="storyline-title">边关风云</h3>
-                            <p class="storyline-description">边关战事频繁，霄奉师命前往调查，意外发现有人在边关走私军械。顺藤摸瓜，揭露了一场足以颠覆朝廷的阴谋。</p>
-                            <div class="storyline-elements">
-                                <div class="element-item">
-                                    <div class="element-dot"></div>
-                                    <div>
-                                        <span class="element-name">龙门客栈：</span>
-                                        <span class="element-description">边关重镇上的一家客栈，是各方势力交换情报的秘密场所</span>
-                                    </div>
-                                </div>
-                                <div class="element-item">
-                                    <div class="element-dot"></div>
-                                    <div>
-                                        <span class="element-name">火药仓库：</span>
-                                        <span class="element-description">隐藏在山洞中的秘密军火库，储存着大量走私来的武器</span>
-                                    </div>
-                                </div>
-                                <div class="element-item">
-                                    <div class="element-dot"></div>
-                                    <div>
-                                        <span class="element-name">将军令牌：</span>
-                                        <span class="element-description">可调动边关三千士兵的象征物，被叛军首领盗取</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex justify-center mt-4">
-                                <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center">
-                                    开始体验
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        <polyline points="12 5 19 12 12 19"></polyline>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="storyline-card">
-                            <h3 class="storyline-title">珠玑谷密</h3>
-                            <p class="storyline-description">江湖传闻珠玑谷中藏有旷世武学秘籍，各路人马蜂拥而至。霄为阻止武林动乱，也踏入谷中，却发现所谓的秘籍背后另有玄机。</p>
-                            <div class="storyline-elements">
-                                <div class="element-item">
-                                    <div class="element-dot"></div>
-                                    <div>
-                                        <span class="element-name">七星石阵：</span>
-                                        <span class="element-description">谷中奇特的石阵，按北斗七星排列，是开启地宫的关键</span>
-                                    </div>
-                                </div>
-                                <div class="element-item">
-                                    <div class="element-dot"></div>
-                                    <div>
-                                        <span class="element-name">玉简：</span>
-                                        <span class="element-description">记载了真正武学奥义的古物，只有悟性极高者才能解读</span>
-                                    </div>
-                                </div>
-                                <div class="element-item">
-                                    <div class="element-dot"></div>
-                                    <div>
-                                        <span class="element-name">地下溶洞：</span>
-                                        <span class="element-description">珠玑谷下的庞大溶洞系统，机关重重，是最后的试炼场所</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex justify-center mt-4">
-                                <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center">
-                                    开始体验
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        <polyline points="12 5 19 12 12 19"></polyline>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-6 p-4 bg-gray-50 rounded-lg text-center">
-                        <p class="text-gray-600">更多精彩剧情，等待你与霄一起体验</p>
-                    </div>
-                </div>
-
-                <!-- 对话 -->
-                <div class="content-section" id="dialogue-section">
-                    <div class="mb-4">
-                        <h2 class="text-xl font-bold text-indigo-600 mb-3">对话示例</h2>
-                        <p class="text-gray-600">与霄的对话，仿佛穿越时空，回到那个刀光剑影的江湖。</p>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="flex flex-col">
-                            <div class="chat-bubble user-bubble">
-                                <div class="chat-time">你</div>
-                                <div class="chat-content">最近感觉压力很大，不知道该如何减压</div>
-                            </div>
-                            <div class="chat-bubble ai-bubble">
-                                <div class="chat-time">霄</div>
-                                <div class="chat-content">人生不如意，十有八九。压力如同重担，放下便是解脱。不如我们寻一处清静之地，沏一壶好茶，下一盘棋，让心灵短暂逃离尘世喧嚣。你可有什么爱好，能让自己暂时忘却烦忧？</div>
-                            </div>
-                        </div>
-                        <div class="flex flex-col">
-                            <div class="chat-bubble user-bubble">
-                                <div class="chat-time">你</div>
-                                <div class="chat-content">你认为什么是真正的侠义？</div>
-                            </div>
-                            <div class="chat-bubble ai-bubble">
-                                <div class="chat-time">霄</div>
-                                <div class="chat-content">侠之大者，为国为民；侠之小者，为民除害。真正的侠义，不在于武功高低，而在于心中的正义与担当。见义勇为，扶危济困，不为名利，不畏强权。侠义二字，说易行难，能坚持一生者，寥寥无几。你心中有侠义，行动中有担当，便是真侠。</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 评论 -->
-                <div class="content-section" id="comments-section">
-                    <div class="mb-6">
-                        <h2 class="text-xl font-bold text-indigo-600 mb-3">评论</h2>
-                        <p class="text-gray-600">用户对霄的评价与互动</p>
-                    </div>
-                    
-                    <!-- 评论列表 -->
-                    <div class="space-y-4">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <div class="flex items-start mb-3">
-                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb" alt="用户头像" class="comment-avatar mr-3">
-                                <div class="flex-1">
-                                    <div class="flex justify-between items-center">
-                                        <span class="font-medium">剑客无名</span>
-                                        <span class="text-gray-500 text-xs">2小时前</span>
-                                    </div>
-                                    <p class="text-gray-600 mt-1">与霄的对话真的很有代入感，他的见解独到，不仅诗词造诣深厚，对江湖险恶也有清醒认识。</p>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <button class="like-button flex items-center gap-1 text-gray-500 hover:text-red-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                    </svg>
-                                    <span>43</span>
-                                </button>
-                                <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 text-xs transition-colors">
-                                    回复
-                                </button>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <div class="flex items-start mb-3">
-                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb" alt="用户头像" class="comment-avatar mr-3">
-                                <div class="flex-1">
-                                    <div class="flex justify-between items-center">
-                                        <span class="font-medium">竹海听雨</span>
-                                        <span class="text-gray-500 text-xs">昨天</span>
-                                    </div>
-                                    <p class="text-gray-600 mt-1">霄的人设非常立体，背景故事丰富且有深度，不是简单的英雄模板。剧情体验中的锦衣迷案特别精彩！</p>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <button class="like-button flex items-center gap-1 text-gray-500 hover:text-red-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                    </svg>
-                                    <span>28</span>
-                                </button>
-                                <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 text-xs transition-colors">
-                                    回复
-                                </button>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <div class="flex items-start mb-3">
-                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb" alt="用户头像" class="comment-avatar mr-3">
-                                <div class="flex-1">
-                                    <div class="flex justify-between items-center">
-                                        <span class="font-medium">月下独酌</span>
-                                        <span class="text-gray-500 text-xs">3天前</span>
-                                    </div>
-                                    <p class="text-gray-600 mt-1">整体来说是个非常优秀的角色，对话流畅自然，性格鲜明。期待后续更新能增加更多江湖奇遇！</p>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <button class="like-button flex items-center gap-1 text-gray-500 hover:text-red-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                    </svg>
-                                    <span>15</span>
-                                </button>
-                                <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 text-xs transition-colors">
-                                    回复
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 查看更多按钮 -->
-                    <div class="flex justify-center mt-4">
-                        <a href="#" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 text-sm flex items-center">
-                            <span>查看更多评论</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1">
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg>
-                        </a>
+                        <!-- 其他经历卡片 -->
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- 底部操作栏 -->
-    <div class="bottom-bar">
-        <button class="action-button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-            与霄对话
-        </button>
-        <div class="share-link">
-            <a href="#">复制分享链接</a>
+        <!-- 底部操作栏 -->
+        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/95 to-black/0 z-20 p-4">
+            <button class="w-full py-3 amber-gradient rounded-full text-white font-medium flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                与霄对话
+            </button>
+            <div class="flex justify-center mt-2">
+                <a href="#" class="text-xs text-gray-400 hover:text-gray-300 transition-colors">复制分享链接</a>
+            </div>
         </div>
     </div>
 
     <script>
-        // 标签页切换
-        const tabs = document.querySelectorAll('.tab');
-        const sections = document.querySelectorAll('.content-section');
-        
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // 移除所有活动状态
-                tabs.forEach(t => t.classList.remove('active'));
-                sections.forEach(s => s.classList.remove('active'));
-                
-                // 添加当前活动状态
-                tab.classList.add('active');
-                const sectionId = tab.getAttribute('data-tab') + '-section';
-                document.getElementById(sectionId).classList.add('active');
+        // 添加交互功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 标签切换
+            const tabs = document.querySelectorAll('.flex.mb-6 button');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => {
+                        t.classList.remove('tab-active');
+                        t.classList.add('tab-inactive');
+                    });
+                    this.classList.remove('tab-inactive');
+                    this.classList.add('tab-active');
+                });
             });
-        });
 
-        // 点赞功能
-        const likeButton = document.getElementById('likeButton');
-        let isLiked = false;
-        
-        likeButton.addEventListener('click', () => {
-            isLiked = !isLiked;
-            if (isLiked) {
-                likeButton.classList.add('liked');
-                likeButton.querySelector('svg').setAttribute('fill', 'currentColor');
-            } else {
-                likeButton.classList.remove('liked');
-                likeButton.querySelector('svg').setAttribute('fill', 'none');
-            }
-        });
-
-        // 评论点赞功能
-        document.querySelectorAll('.like-button').forEach(button => {
-            button.addEventListener('click', function() {
-                this.classList.toggle('liked');
-                const countSpan = this.querySelector('span');
-                let count = parseInt(countSpan.textContent);
-                countSpan.textContent = this.classList.contains('liked') ? count + 1 : count - 1;
+            // 菜单切换
+            const menuButton = document.querySelector('.p-2.rounded-full.bg-black\\/30:nth-child(3)');
+            const menu = document.querySelector('.menu-panel');
+            menuButton.addEventListener('click', function() {
+                menu.classList.toggle('menu-closed');
+                menu.classList.toggle('menu-open');
             });
-        });
-
-        // 菜单按钮
-        const menuButton = document.getElementById('menuButton');
-        menuButton.addEventListener('click', () => {
-            alert('菜单功能已点击');
         });
     </script>
 </body>
